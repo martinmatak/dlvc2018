@@ -97,7 +97,10 @@ class BatchGenerator:
             sample_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
             for i, sample_id in enumerate(sample_indices):
                 _, sample = self.dataset.__getitem__(sample_id)
-                data[i] = sample['data']
+                if self.op:
+                    data[i] = self.op(sample['data'])
+                else:
+                    data[i] = sample['data']
                 labels[i] = sample['label']
                 indices[i] = sample['idx']
             batch = Batch()
