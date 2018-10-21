@@ -1,7 +1,6 @@
-
 import numpy as np
-
 import types
+
 
 def chain(ops: list) -> types.FunctionType:
     '''
@@ -15,16 +14,26 @@ def chain(ops: list) -> types.FunctionType:
 
     return op
 
+
 def type_cast(dtype: np.dtype) -> types.FunctionType:
     '''
     Cast numpy arrays to the given type.
     '''
 
-    # TODO implement (see above for guidance).
+    def op(sample: np.ndarray) -> np.ndarray:
+        sample = sample.astype(dtype)
+        return sample
+
+    return op
+
 
 def vectorize() -> types.FunctionType:
     '''
     Vectorize numpy arrays via "numpy.ravel()".
     '''
 
-    # TODO implement (see above for guidance).
+    def op(sample: np.ndarray) -> np.ndarray:
+        sample = np.ravel(sample)
+        return sample
+
+    return op
