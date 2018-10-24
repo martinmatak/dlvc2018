@@ -114,18 +114,20 @@ class PetsDataset(ClassificationDataset):
         Returns the idx-th sample in the dataset.
         Raises IndexError if the index is out of bounds.
         '''
-        self.idx = idx
+        if idx >= 0:
 
-        if self.idx < 7958 and self.subset == Subset.TRAINING:
-            s = Sample(self.idx, self.train_images[self.idx], self.train_labels[self.idx])
+            if idx < 7958 and self.subset == Subset.TRAINING:
+                s = Sample(idx, self.train_images[idx], self.train_labels[idx])
 
-        elif self.idx < 2040 and self.subset == Subset.VALIDATION:
-            s = Sample(self.idx, self.val_images[self.idx], self.val_labels[self.idx])
+            elif idx < 2040 and self.subset == Subset.VALIDATION:
+                s = Sample(idx, self.val_images[idx], self.val_labels[idx])
 
-        elif self.idx < 1999 and self.subset == Subset.TEST:
-            s = Sample(self.idx, self.test_images[self.idx], self.test_labels[self.idx])
+            elif idx < 1999 and self.subset == Subset.TEST:
+                s = Sample(idx, self.test_images[idx], self.test_labels[idx])
 
+            else:
+                raise IndexError("Index is out of bound")
         else:
-            raise IndexError("Index is out of bound")
+            raise IndexError("Index cannot be negative")
 
         return s
