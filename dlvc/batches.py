@@ -1,5 +1,4 @@
-
-from .dataset import Dataset
+from dataset import Dataset
 import numpy as np
 import types
 
@@ -96,16 +95,15 @@ class BatchGenerator:
         for idx in  range(0, len(self)):
             sample_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
             for i, sample_id in enumerate(sample_indices):
-                _, sample = self.dataset.__getitem__(sample_id)
+                sample = self.dataset[sample_id]
                 if self.op:
                     data[i] = self.op(sample['data'])
                 else:
-                    data[i] = sample['data']
-                labels[i] = sample['label']
-                indices[i] = sample['idx']
+                    data[i] = sample.data
+                labels[i] = sample.label
+                indices[i] = sample.idx
             batch = Batch()
             batch.data = data
             batch.labels = labels
             batch.idx = indices
             yield batch
-
