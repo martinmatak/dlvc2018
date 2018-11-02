@@ -67,7 +67,7 @@ class BatchGenerator:
         # op field
         if op is None:
             self.op = op
-        elif isinstance(op, types.FunctionType):
+        elif isinstance(op, Op):
             self.op = op
         else:
             raise TypeError("op has an inappropriate type.")
