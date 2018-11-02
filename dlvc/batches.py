@@ -1,6 +1,7 @@
-from dataset import Dataset
 import numpy as np
-import types
+from .dataset import Dataset
+from .ops import Op
+import typing
 
 IMAGE_WIDTH = 32
 IMAGE_HEIGHT = 32
@@ -31,13 +32,13 @@ class BatchGenerator:
       idx: numpy array with shape (s,) encoding the indices of each sample in the original dataset.
     '''
 
-    def __init__(self, dataset: Dataset, num: int, shuffle: bool, op: types.FunctionType = None):
+    def __init__(self, dataset: Dataset, num: int, shuffle: bool, op: Op = None):
         '''
         Ctor.
         Dataset is the dataset to iterate over.
         num is the number of samples per batch. the number in the last batch might be smaller than that.
         shuffle controls whether the sample order should be preserved or not.
-        op is a function to apply to input samples.
+        op is an operation to apply to input samples.
         Raises TypeError on invalid argument types.
         Raises ValueError on invalid argument values, such as if num is > len(dataset).
         '''
@@ -84,7 +85,7 @@ class BatchGenerator:
 
         return int(np.floor(len(self.dataset) / self.batch_size))
 
-    def __iter__(self) -> types.GeneratorType:
+    def __iter__(self) -> typing.Iterable[Batch]:
         '''
         Iterate over the wrapped dataset, returning the data as batches.
         '''
