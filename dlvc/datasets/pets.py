@@ -9,6 +9,9 @@ class PetsDataset(ClassificationDataset):
     Dataset of cat and dog images from CIFAR-10 (class 0: cat, class 1: dog).
     '''
 
+    def num_classes(self) -> int:
+        return 2
+
     def __init__(self, fdir: str, subset: Subset):
         '''
         Loads a subset of the dataset from a directory fdir that contains the Python version
@@ -50,11 +53,7 @@ class PetsDataset(ClassificationDataset):
         if not os.path.isfile(self.fdir + "test_batch"):
             raise ValueError("File test_batch is missing")
 
-        file_names = os.listdir(fdir)
-        file_names.sort()
 
-        train_images = []
-        train_labels = []
 
         if self.subset == Subset.TEST:
             self.test_images, self.test_labels = self.load_data_from_file(self.fdir + "test_batch")
@@ -63,8 +62,12 @@ class PetsDataset(ClassificationDataset):
             self.val_images, self.val_labels = self.load_data_from_file(self.fdir + "data_batch_5")
 
         elif self.subset == Subset.TRAINING:
-            file_names.remove("data_batch_5")
-            file_names.remove("test_batch")
+            file_names = []
+            for i in range(1, 5):
+                file_names.append("data_batch_" + str(i))
+
+            train_images = []
+            train_labels = []
 
             for file in file_names:
                 temp_images, temp_labels = self.load_data_from_file(self.fdir + str(file))
