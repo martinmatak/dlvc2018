@@ -1,4 +1,4 @@
-from dataset import Sample, Subset, ClassificationDataset
+from ..dataset import Sample, Subset, ClassificationDataset
 import os, cv2
 import numpy as np
 import _pickle as cpickle
@@ -82,13 +82,13 @@ class PetsDataset(ClassificationDataset):
             read_dict = cpickle.load(fo, encoding='bytes')
             for i, label in enumerate(read_dict[b'labels']):
 
-                if label == 3: # is a cat
+                if label == 3:  # is a cat
                     img = read_dict[b'data'][i].reshape((3, 32, 32)).transpose((1, 2, 0))
                     img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                     new_image.append(img_bgr)
                     new_label.append(0)
 
-                elif label == 5:# is a dog
+                elif label == 5:  # is a dog
                     img = read_dict[b'data'][i].reshape((3, 32, 32)).transpose((1, 2, 0))
                     img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                     new_image.append(img_bgr)
