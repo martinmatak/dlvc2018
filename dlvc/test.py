@@ -2,6 +2,7 @@ from dlvc.datasets.pets import PetsDataset
 from dlvc.datasets.pets import TEST_SIZE, VALIDATION_SIZE, TRAINING_SIZE
 from dlvc.dataset import Subset
 import numpy as np
+from dlvc.batches import BatchGenerator, Batch
 
 dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
@@ -87,5 +88,72 @@ for index, label in enumerate(labels):
         str(dataset_training[index].label) + ", expected: " + str(label) + "."
 
 # TODO: Make sure that the color channels are in BGR order (not RGB) by displaying the images and verifying the colors are correct (cv2.imshow, cv2.imwrite)
-# How to check this?
+# TODO: How to check this?
+
+##########################################
+#                 PART 2                 #
+##########################################
+
+# The number of training batches is 1 if the batch size is set to the number of samples in the dataset
+batch_generator = BatchGenerator(dataset_training, len(dataset_training), False)
+num_of_batches = len(batch_generator)
+expected = 1
+assert num_of_batches == expected, "Number of batches is " + str(num_of_batches) + ", expected: " + str(expected)
+
+# The number of training batches is 16 if the batch size is set to 500
+batch_generator = BatchGenerator(dataset_training, 500, False)
+num_of_batches = len(batch_generator)
+expected = 16
+assert num_of_batches == expected, "Number of batches is " + str(num_of_batches) + ", expected: " + str(expected)
+
+# The data and label shapes are (500, 3072) and (500,), respectively, unless for the last batch
+batch_generator = BatchGenerator(dataset_training, 500, False)
+last_batch_idx = len(batch_generator) - 1
+batch_idx = 0
+for batch in batch_generator:
+    # skip last batch
+    if batch_idx == last_batch_idx:
+        continue
+    # TODO: uncomment a line below, that test must pass
+    # assert batch.data.shape == (500, 3072), "Batch data shape: " + str(batch.data.shape) + ", expected: (500, 3072)."
+    assert batch.labels.shape == (500,), "Batch labels shape: " + str(batch.labels.shape) + ", expected: (500,)."
+    batch_idx += 1
+
+# The data type is always np.float32 and the label type is integral (one of the np.int and np.uint variants)
+# Implemented: for label type np.uint8 since there is less than 256 labels
+batch_generator = BatchGenerator(dataset_training, 500, False)
+for batch in batch_generator:
+    assert batch.data.dtype == np.float32, "Batch data type: " + str(batch.data.dtype) + ", expected: np.float32."
+    assert batch.labels.dtype == np.uint8, "Batch labels type: " + str(batch.labels.dtype) + ", expected: np.uint8."
+
+# The first sample of the first training batch returned without shuffling
+# has label 0 and data [116. 125. 125. 91. 101. ...].
+# TODO: Shape of data in batch is different than in instructions atm - (batch_size, 32, 32, 3) instead of (batch_size, 3072)
+batch_generator = BatchGenerator(dataset_training, 500, False)
+first_sample_label_unshuffled = None
+first_sample_data_unshuffled = None
+expected_label = 0
+for batch in batch_generator:
+    for label in batch.labels:
+        first_sample_label_unshuffled = label
+        break
+    for data in batch.data:
+        first_sample_data_unshuffled = data
+        break
+    break
+assert first_sample_label_unshuffled == expected_label, "First sample label: " + str(first_sample_label_unshuffled)\
+                                             + ", expected: " + str(expected_label)
+
+# The first sample of the first training batch returned with shuffling must be different than first in unshuffled batch
+batch_generator = BatchGenerator(dataset_training, 500, True)
+first_sample_data_shuffled = None
+expected_label = 0
+for batch in batch_generator:
+    for data in batch.data:
+        first_sample_data_shuffled = data
+        break
+    break
+assert ((first_sample_data_unshuffled != first_sample_data_shuffled).any()),\
+    "Data is not shuffled - unexpected behaviour"
+
 

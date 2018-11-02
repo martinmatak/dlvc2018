@@ -83,22 +83,22 @@ class BatchGenerator:
         Returns the number of batches generated per iteration.
         '''
 
-        return int(np.floor(len(self.dataset) / self.batch_size))
+        return int(np.ceil(len(self.dataset) / self.batch_size))
 
     def __iter__(self) -> typing.Iterable[Batch]:
         '''
         Iterate over the wrapped dataset, returning the data as batches.
         '''
 
-        data = np.zeros((self.batch_size, IMAGE_WIDTH, IMAGE_HEIGHT, CHANNEL_NUM), dtype=np.uint8)
-        labels = np.zeros((self.batch_size, 1), dtype=np.int32)
+        data = np.zeros((self.batch_size, IMAGE_WIDTH, IMAGE_HEIGHT, CHANNEL_NUM), dtype=np.float32)
+        labels = np.zeros((self.batch_size,), dtype=np.uint8)
         indices = np.zeros(self.batch_size, dtype=np.int32)
-        for idx in  range(0, len(self)):
+        for idx in range(0, len(self)):
             sample_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
             for i, sample_id in enumerate(sample_indices):
                 sample = self.dataset[sample_id]
                 if self.op:
-                    data[i] = self.op(sample['data'])
+                    data[i] = self.op(sample.data)
                 else:
                     data[i] = sample.data
                 labels[i] = sample.label
