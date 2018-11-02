@@ -3,6 +3,10 @@ import os, cv2
 import numpy as np
 import _pickle as cpickle
 
+TRAINING_SIZE = 7959
+VALIDATION_SIZE = 2041
+TEST_SIZE = 2000
+
 
 class PetsDataset(ClassificationDataset):
     '''
@@ -52,8 +56,6 @@ class PetsDataset(ClassificationDataset):
             raise ValueError("File data_batch_5 is missing")
         if not os.path.isfile(self.fdir + "test_batch"):
             raise ValueError("File test_batch is missing")
-
-
 
         if self.subset == Subset.TEST:
             self.test_images, self.test_labels = self.load_data_from_file(self.fdir + "test_batch")
@@ -118,16 +120,14 @@ class PetsDataset(ClassificationDataset):
         Raises IndexError if the index is out of bounds.
         '''
         if idx >= 0:
-
-            if idx < 7958 and self.subset == Subset.TRAINING:
+            if idx < TRAINING_SIZE and self.subset == Subset.TRAINING:
                 s = Sample(idx, self.train_images[idx], self.train_labels[idx])
 
-            elif idx < 2040 and self.subset == Subset.VALIDATION:
+            elif idx < VALIDATION_SIZE and self.subset == Subset.VALIDATION:
                 s = Sample(idx, self.val_images[idx], self.val_labels[idx])
 
-            elif idx < 1999 and self.subset == Subset.TEST:
+            elif idx < TEST_SIZE and self.subset == Subset.TEST:
                 s = Sample(idx, self.test_images[idx], self.test_labels[idx])
-
             else:
                 raise IndexError("Index is out of bound")
         else:
