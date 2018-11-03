@@ -4,6 +4,7 @@ from dlvc.dataset import Subset
 import numpy as np
 from dlvc.batches import BatchGenerator
 from dlvc.ops import vectorize, chain, type_cast
+import cv2
 
 dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
@@ -88,8 +89,12 @@ for index, label in enumerate(labels):
     assert str(dataset_training[index].label) == label, "Label of index " + str(index) + " is not correct: it is " + \
         str(dataset_training[index].label) + ", expected: " + str(label) + "."
 
-# TODO: Make sure that the color channels are in BGR order (not RGB) by displaying the images and verifying the colors are correct (cv2.imshow, cv2.imwrite)
-# TODO: How to check this?
+# Make sure that the color channels are in BGR order (not RGB) by displaying the images and verifying the colors are correct (cv2.imshow, cv2.imwrite)
+# -> you should see a dog on a blue blanket here
+sample = dataset_training[1337]
+cv2.imwrite('color_img.jpg', sample.data)
+cv2.imshow("image", sample.data)
+cv2.waitKey()
 
 ##########################################
 #                 PART 2                 #
@@ -127,7 +132,7 @@ for batch in batch_generator:
     assert batch.labels.dtype == np.uint8, "Batch labels type: " + str(batch.labels.dtype) + ", expected: np.uint8."
 
 # The first sample of the first training batch returned without shuffling
-# has label 0 and data [116. 125. 125. 91. 101. ...].
+# has label 0 ...
 batch_generator = BatchGenerator(dataset_training, 500, False, op=chain([type_cast(dtype=np.float32), vectorize()]))
 first_sample_label_unshuffled = None
 first_sample_data_unshuffled = None
@@ -142,6 +147,7 @@ for batch in batch_generator:
     break
 assert first_sample_label_unshuffled == expected_label, "First sample label: " + str(first_sample_label_unshuffled)\
                                              + ", expected: " + str(expected_label)
+# ... and data [116. 125. 125. 91. 101. ...]
 treshold = 10e-6
 assert abs(first_sample_data_unshuffled[0] - 116.) < treshold, "Pixel value not correct"
 assert abs(first_sample_data_unshuffled[1] - 125.) < treshold, "Pixel value not correct"
