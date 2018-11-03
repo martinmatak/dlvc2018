@@ -90,14 +90,17 @@ class BatchGenerator:
         Iterate over the wrapped dataset, returning the data as batches.
         '''
 
-        # if there is operation, assume to vectorize it
         if self.op:
-            data = np.zeros((self.batch_size, IMAGE_WIDTH * IMAGE_HEIGHT * CHANNEL_NUM), dtype=np.float32)
+            sample_data_shape = self.op(self.dataset[0].data).shape
         else:
-            data = np.zeros((self.batch_size, IMAGE_WIDTH, IMAGE_HEIGHT, CHANNEL_NUM), dtype=np.float32)
+            sample_data_shape = self.dataset[0].data.shape
+        data = np.zeros((self.batch_size,) + sample_data_shape, dtype=np.float32)
 
-        labels = np.zeros((self.batch_size,), dtype=np.uint8)
+        sample_label_shape = self.dataset[0].label.shape
+        labels = np.zeros((self.batch_size,) + sample_label_shape, dtype=np.uint8)
+
         indices = np.zeros(self.batch_size, dtype=np.int32)
+
         for idx in range(0, len(self)):
             sample_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
             for i, sample_id in enumerate(sample_indices):
