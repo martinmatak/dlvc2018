@@ -67,7 +67,7 @@ class BatchGenerator:
         # op field
         if op is None:
             self.op = op
-        elif isinstance(op, Op):
+        elif callable(op):
             self.op = op
         else:
             raise TypeError("op has an inappropriate type.")
@@ -90,7 +90,12 @@ class BatchGenerator:
         Iterate over the wrapped dataset, returning the data as batches.
         '''
 
-        data = np.zeros((self.batch_size, IMAGE_WIDTH, IMAGE_HEIGHT, CHANNEL_NUM), dtype=np.float32)
+        # if there is operation, assume to vectorize it
+        if self.op:
+            data = np.zeros((self.batch_size, IMAGE_WIDTH * IMAGE_HEIGHT * CHANNEL_NUM), dtype=np.float32)
+        else:
+            data = np.zeros((self.batch_size, IMAGE_WIDTH, IMAGE_HEIGHT, CHANNEL_NUM), dtype=np.float32)
+
         labels = np.zeros((self.batch_size,), dtype=np.uint8)
         indices = np.zeros(self.batch_size, dtype=np.int32)
         for idx in range(0, len(self)):

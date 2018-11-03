@@ -2,7 +2,8 @@ from dlvc.datasets.pets import PetsDataset
 from dlvc.datasets.pets import TEST_SIZE, VALIDATION_SIZE, TRAINING_SIZE
 from dlvc.dataset import Subset
 import numpy as np
-from dlvc.batches import BatchGenerator, Batch
+from dlvc.batches import BatchGenerator
+from dlvc.ops import vectorize
 
 dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
@@ -107,15 +108,14 @@ expected = 16
 assert num_of_batches == expected, "Number of batches is " + str(num_of_batches) + ", expected: " + str(expected)
 
 # The data and label shapes are (500, 3072) and (500,), respectively, unless for the last batch
-batch_generator = BatchGenerator(dataset_training, 500, False)
+batch_generator = BatchGenerator(dataset_training, 500, shuffle=False, op=vectorize())
 last_batch_idx = len(batch_generator) - 1
 batch_idx = 0
 for batch in batch_generator:
     # skip last batch
     if batch_idx == last_batch_idx:
         continue
-    # TODO: uncomment a line below, that test must pass
-    # assert batch.data.shape == (500, 3072), "Batch data shape: " + str(batch.data.shape) + ", expected: (500, 3072)."
+    assert batch.data.shape == (500, 3072), "Batch data shape: " + str(batch.data.shape) + ", expected: (500, 3072)."
     assert batch.labels.shape == (500,), "Batch labels shape: " + str(batch.labels.shape) + ", expected: (500,)."
     batch_idx += 1
 
@@ -128,8 +128,7 @@ for batch in batch_generator:
 
 # The first sample of the first training batch returned without shuffling
 # has label 0 and data [116. 125. 125. 91. 101. ...].
-# TODO: Shape of data in batch is different than in instructions atm - (batch_size, 32, 32, 3) instead of (batch_size, 3072)
-batch_generator = BatchGenerator(dataset_training, 500, False)
+batch_generator = BatchGenerator(dataset_training, 500, False, op=vectorize())
 first_sample_label_unshuffled = None
 first_sample_data_unshuffled = None
 expected_label = 0
@@ -143,6 +142,12 @@ for batch in batch_generator:
     break
 assert first_sample_label_unshuffled == expected_label, "First sample label: " + str(first_sample_label_unshuffled)\
                                              + ", expected: " + str(expected_label)
+treshold = 10e-6
+assert abs(first_sample_data_unshuffled[0] - 116.) < treshold, "Pixel value not correct"
+assert abs(first_sample_data_unshuffled[1] - 125.) < treshold, "Pixel value not correct"
+assert abs(first_sample_data_unshuffled[2] - 125.) < treshold, "Pixel value not correct"
+assert abs(first_sample_data_unshuffled[3] - 91.) < treshold, "Pixel value not correct"
+assert abs(first_sample_data_unshuffled[4] - 101.) < treshold, "Pixel value not correct"
 
 # The first sample of the first training batch returned with shuffling must be different than first in unshuffled batch
 batch_generator = BatchGenerator(dataset_training, 500, True)
@@ -153,7 +158,7 @@ for batch in batch_generator:
         first_sample_data_shuffled = data
         break
     break
-assert ((first_sample_data_unshuffled != first_sample_data_shuffled).any()),\
+assert np.array_equal(first_sample_data_unshuffled, first_sample_data_shuffled) is False,\
     "Data is not shuffled - unexpected behaviour"
 
 
