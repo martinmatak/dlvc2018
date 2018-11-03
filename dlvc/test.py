@@ -3,7 +3,7 @@ from dlvc.datasets.pets import TEST_SIZE, VALIDATION_SIZE, TRAINING_SIZE
 from dlvc.dataset import Subset
 import numpy as np
 from dlvc.batches import BatchGenerator
-from dlvc.ops import vectorize
+from dlvc.ops import vectorize, chain, type_cast
 
 dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
@@ -121,14 +121,14 @@ for batch in batch_generator:
 
 # The data type is always np.float32 and the label type is integral (one of the np.int and np.uint variants)
 # Implemented: for label type np.uint8 since there is less than 256 labels
-batch_generator = BatchGenerator(dataset_training, 500, False)
+batch_generator = BatchGenerator(dataset_training, 500, False, op=chain([vectorize(), type_cast(dtype=np.float32)]))
 for batch in batch_generator:
     assert batch.data.dtype == np.float32, "Batch data type: " + str(batch.data.dtype) + ", expected: np.float32."
     assert batch.labels.dtype == np.uint8, "Batch labels type: " + str(batch.labels.dtype) + ", expected: np.uint8."
 
 # The first sample of the first training batch returned without shuffling
 # has label 0 and data [116. 125. 125. 91. 101. ...].
-batch_generator = BatchGenerator(dataset_training, 500, False, op=vectorize())
+batch_generator = BatchGenerator(dataset_training, 500, False, op=chain([type_cast(dtype=np.float32), vectorize()]))
 first_sample_label_unshuffled = None
 first_sample_data_unshuffled = None
 expected_label = 0
