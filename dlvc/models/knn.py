@@ -1,7 +1,6 @@
-
 from ..model import Model
-
 import numpy as np
+
 
 class KnnClassifier(Model):
     '''
@@ -44,6 +43,9 @@ class KnnClassifier(Model):
         else:
             raise TypeError("Number of classes must be of type int.")
 
+        self.data = None
+        self.labels = None
+
     def input_shape(self) -> tuple:
         '''
         Returns the expected input shape as a tuple, which is (0, input_dim).
@@ -70,7 +72,22 @@ class KnnClassifier(Model):
         Raises RuntimeError on other errors.
         '''
 
-        # TODO check for errors
+        if type(data) != np.ndarray:
+            raise TypeError("Data type must be np.ndarray")
+        if data.dtype != np.float32:
+            raise TypeError("Data dtype must be np.float32")
+        if len(data.shape) != 2:
+            raise ValueError("Data shape tuple must have length 2")
+        if data.shape[1] != self.input_dim:
+            raise ValueError("Data shape tuple must have shape (m, input_dim) where m is arbitrary")
+
+        if type(labels) != np.ndarray:
+            raise TypeError("Labels type must be np.ndarray")
+        if len(labels.shape) != 1:
+            raise ValueError("Labels shape tuple must have length 1")
+        for label in labels:
+            if label < 0 or label > self.num_classes - 1:
+                raise ValueError("Label out of scope!")
         self.data = data
         self.labels = labels
         return 0
@@ -85,7 +102,11 @@ class KnnClassifier(Model):
         Raises RuntimeError on other errors.
         '''
 
-        # TODO implement error checks
+        if type(data) != np.ndarray:
+            raise TypeError("Data must be of type np.ndarray")
+        if data.shape != self.input_shape():
+            raise ValueError("Data must be compatible with shape shape: " + str(self.input_shape()))
+
         num_of_samples = data.shape[0]
         labels = np.ndarray((num_of_samples, self.output_shape()))
         for idx in range(0, num_of_samples):
