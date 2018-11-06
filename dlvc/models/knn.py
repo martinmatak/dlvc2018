@@ -132,11 +132,10 @@ class KnnClassifier(Model):
                 classVotes[response] = 1
         return classVotes
 
-    def euclideanDistance(self, instance1, instance2):
-        # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
-        # TODO: is this 3rd party library? Should this be manually implemented?
-        dist = np.linalg.norm(instance1 - instance2)
-        return dist
+    def L1distance(self, vectorA: np.ndarray, vectorB: np.ndarray):
+        if len(vectorA) != len(vectorB):
+            raise ValueError("Vectors have different dimensions.")
+        return sum(abs(x1 - x2) for x1, x2 in zip(vectorA, vectorB))
 
     def getNeighbors(self, instance):
         '''
@@ -144,7 +143,7 @@ class KnnClassifier(Model):
         '''
         distances = []
         for x in range(len(self.data)):
-            dist = self.euclideanDistance(instance, self.data[x])
+            dist = self.L1distance(instance, self.data[x])
             distances.append((self.labels[x], self.data[x], dist))
         distances.sort(key=operator.itemgetter(2))
         neighbors = []
