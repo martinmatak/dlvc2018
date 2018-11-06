@@ -62,7 +62,7 @@ class Accuracy(PerformanceMeasure):
         '''
         Ctor.
         '''
-
+        self.value = None
         self.reset()
 
     def reset(self):
@@ -70,9 +70,7 @@ class Accuracy(PerformanceMeasure):
         Resets internal state.
         '''
 
-        # TODO implement
-
-        pass
+        self.value = 0.0
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
@@ -82,19 +80,31 @@ class Accuracy(PerformanceMeasure):
         Raises ValueError if the data shape or values are unsupported.
         '''
 
-        # TODO implement
+        if type(prediction) != np.ndarray:
+            raise TypeError("Prediction type must be np.ndarray")
+        if len(prediction.shape) != 2:
+            raise ValueError("Prediction must have shape (s,c)")
 
-        pass
+        if type(target) != np.ndarray:
+            raise TypeError("Target type must be np.ndarray")
+        if len(target.shape) != 1:
+            raise ValueError("Target must have shape (s,)")
+
+        if len(target) != len(prediction):
+            raise ValueError("Target and prediction arrays don't have the same length.")
+
+        correct = 0
+        for index, trueLabel in enumerate(target):
+            predicted_label = np.argmax(prediction[index])
+            if predicted_label == trueLabel:
+                correct += 1
+        self.value = correct * 1.0 / len(target)
 
     def __str__(self):
         '''
         Return a string representation of the performance.
         '''
-
-        # TODO implement
-        # return something like "accuracy: 0.395"
-
-        pass
+        return "accuracy: " + str(self.accuracy())
 
     def __lt__(self, other) -> bool:
         '''
@@ -102,9 +112,10 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if type(self.accuracy()) != type(other):
+            raise TypeError("types of both measures differ")
 
-        pass
+        return self.accuracy() < other
 
     def __gt__(self, other) -> bool:
         '''
@@ -112,9 +123,10 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        # TODO implement
+        if type(self.accuracy()) != type(other):
+            raise TypeError("types of both measures differ")
 
-        pass
+        return self.accuracy() > other
 
     def accuracy(self) -> float:
         '''
@@ -122,7 +134,4 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
-        # TODO implement
-        # on this basis implementing the other methods is easy (one line)
-
-        pass
+        return self.value
