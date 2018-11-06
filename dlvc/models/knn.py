@@ -1,5 +1,6 @@
 from ..model import Model
 import numpy as np
+import operator
 
 
 class KnnClassifier(Model):
@@ -104,11 +105,11 @@ class KnnClassifier(Model):
 
         if type(data) != np.ndarray:
             raise TypeError("Data must be of type np.ndarray")
-        if data.shape != self.input_shape():
+        if len(data.shape) != len(self.input_shape()) or data.shape[1:] != self.input_shape()[1:]:
             raise ValueError("Data must be compatible with shape shape: " + str(self.input_shape()))
 
         num_of_samples = data.shape[0]
-        labels = np.ndarray((num_of_samples, self.output_shape()))
+        labels = np.ndarray((num_of_samples, ) + self.output_shape())
         for idx in range(0, num_of_samples):
             sample = data[idx]
             neighbours = self.getNeighbors(sample)
@@ -124,7 +125,7 @@ class KnnClassifier(Model):
 
         classVotes = {}
         for x in range(len(neighbors)):
-            response = neighbors[x].label
+            response = neighbors[x]["label"]
             if response in classVotes:
                 classVotes[response] += 1
             else:
@@ -133,6 +134,7 @@ class KnnClassifier(Model):
 
     def euclideanDistance(self, instance1, instance2):
         # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
+        # TODO: is this 3rd party library? Should this be manually implemented?
         dist = np.linalg.norm(instance1 - instance2)
         return dist
 
@@ -143,18 +145,20 @@ class KnnClassifier(Model):
         distances = []
         for x in range(len(self.data)):
             dist = self.euclideanDistance(instance, self.data[x])
-            distances.append((self.data[x], dist))
-        distances.sort(key=np.operator.itemgetter(1))
+            distances.append((self.labels[x], self.data[x], dist))
+        distances.sort(key=operator.itemgetter(2))
         neighbors = []
         for x in range(self.k):
-            neighbors.append(distances[x][0])
+            neighbors.append({})
+            neighbors[x]["label"] = distances[x][0]
+            neighbors[x]["data"] = distances[x][1]
         return neighbors
 
     def softmax(self, votes):
         denominator = 0
         for value in votes.values():
             denominator += np.exp(value)
-        result = {}
-        for key, value in votes:
-            result[key] = value * 1.0 / denominator
+        result = []
+        for classIndex in range(0, self.num_classes):
+            result.append(votes.get(classIndex, 0) * 1.0 / denominator)
         return result
