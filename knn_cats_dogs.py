@@ -6,8 +6,6 @@ from dlvc.ops import vectorize, chain, type_cast
 from dlvc.test import Accuracy
 import numpy as np
 
-#TODO: This file has never been executed
-
 dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
@@ -27,10 +25,10 @@ batchGenerator_validation = BatchGenerator(pets_validation, len(pets_validation)
 batchGenerator_test = BatchGenerator(pets_test, len(pets_test), False,
                                          op=chain([type_cast(dtype=np.float32), vectorize()]))
 
-best_accuracy = 0
+best_accuracy = 0.0
 best_k = -1
 results = {}
-for k in range(1, 101, 10):  # grid search example
+for k in range(1, 101, 7):  # grid search example
     knn = KnnClassifier(k, IMAGE_HEIGHT*IMAGE_WIDTH*NUM_CHANNELS, NUM_CLASSES)
     accuracy = Accuracy()
 
