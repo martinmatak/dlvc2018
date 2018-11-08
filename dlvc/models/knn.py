@@ -132,10 +132,17 @@ class KnnClassifier(Model):
                 classVotes[response] = 1
         return classVotes
 
+    # use if small differences in between pixel values are more important than bigger differences (outliers)
     def L1distance(self, vectorA: np.ndarray, vectorB: np.ndarray):
         if len(vectorA) != len(vectorB):
             raise ValueError("Vectors have different dimensions.")
         return np.abs(vectorA - vectorB).sum()
+
+    # use if outliers are more important than small differences in between pixel values
+    def L2distance(self, vectorA: np.ndarray, vectorB: np.ndarray):
+        if len(vectorA) != len(vectorB):
+            raise ValueError("Vectors have different dimensions.")
+        return np.sqrt(np.square(vectorA - vectorB).sum())
 
     def getNeighbors(self, instance):
         '''
