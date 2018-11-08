@@ -135,16 +135,18 @@ class KnnClassifier(Model):
     def L1distance(self, vectorA: np.ndarray, vectorB: np.ndarray):
         if len(vectorA) != len(vectorB):
             raise ValueError("Vectors have different dimensions.")
-        return sum(abs(x1 - x2) for x1, x2 in zip(vectorA, vectorB))
+        return np.abs(vectorA - vectorB).sum()
 
     def getNeighbors(self, instance):
         '''
         Return k nearest neighbors.
         '''
         distances = []
+
         for x in range(len(self.data)):
             dist = self.L1distance(instance, self.data[x])
             distances.append((self.labels[x], self.data[x], dist))
+
         distances.sort(key=operator.itemgetter(2))
         neighbors = []
         for x in range(self.k):

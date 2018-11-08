@@ -112,10 +112,10 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        if type(self.accuracy()) != type(other):
+        if type(other) is None or type(other) != Accuracy:
             raise TypeError("types of both measures differ")
 
-        return self.accuracy() < other
+        return self.accuracy() < other.accuracy()
 
     def __gt__(self, other) -> bool:
         '''
@@ -123,10 +123,10 @@ class Accuracy(PerformanceMeasure):
         Raises TypeError if the types of both measures differ.
         '''
 
-        if type(self.accuracy()) != type(other):
+        if type(other) is None or type(other) != Accuracy:
             raise TypeError("types of both measures differ")
 
-        return self.accuracy() > other
+        return self.accuracy() > other.accuracy()
 
     def accuracy(self) -> float:
         '''
@@ -134,4 +134,4 @@ class Accuracy(PerformanceMeasure):
         Returns 0 if no data is available (after resets).
         '''
 
-        return self.value
+        return float(self.value)

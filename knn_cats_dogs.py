@@ -25,10 +25,12 @@ batchGenerator_validation = BatchGenerator(pets_validation, len(pets_validation)
 batchGenerator_test = BatchGenerator(pets_test, len(pets_test), False,
                                          op=chain([type_cast(dtype=np.float32), vectorize()]))
 
-best_accuracy = 0.0
+best_accuracy = Accuracy()
 best_k = -1
 results = {}
-for k in range(1, 101, 7):  # grid search example
+knn = None
+
+for k in range(1, 100, 40):  # grid search example
     knn = KnnClassifier(k, IMAGE_HEIGHT*IMAGE_WIDTH*NUM_CHANNELS, NUM_CLASSES)
     accuracy = Accuracy()
 
@@ -52,7 +54,6 @@ for key, value in results.items():
     print("k=" + str(key), ", accuracy=", str(value))
 
 # compute test accuracy
-knn = KnnClassifier(best_k, IMAGE_HEIGHT * IMAGE_WIDTH * NUM_CHANNELS, NUM_CLASSES)
 test_batch = None
 test_batch_predictions = None
 accuracy = Accuracy()

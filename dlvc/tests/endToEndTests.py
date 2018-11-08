@@ -4,15 +4,11 @@ from dlvc.models.knn import KnnClassifier
 import numpy as np
 from dlvc.batches import BatchGenerator
 from dlvc.ops import vectorize, chain, type_cast
+import time
 
 '''
 Tests in this file should test the whole pipeline. They take more time than unit tests.
 '''
-
-# Important: This test takes A LOT of time, in order to speed it up, redefine distance computation method in knn.py
-# (i.e. use some third-party implementation / use L2 ..)
-# e.g. https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cityblock.html#scipy.spatial.distance.cityblock
-
 
 # make sure the whole pipeline works:
 #  when k=1 and
@@ -20,6 +16,7 @@ Tests in this file should test the whole pipeline. They take more time than unit
 #  batch size is equal to whole dataset then
 #  kNN must have accuracy 100%
 
+start = time.time()
 
 pets = PetsDataset('/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/', Subset.TEST)
 num_classes = 2
@@ -49,7 +46,9 @@ for batch in batchGenerator:
     accuracy = measure_accuracy(predictedLabels, groundTruthLabels)
 assert abs(accuracy - 1.0) < treshold, "Accuracy is different than 1!"
 
+end = time.time()
 ####################################################
 print("If this line gets executed, all end-to-end tests passed successfully :)")
+print("total time needed: " + str(end-start) + " seconds")
 #####################################################
 
