@@ -14,9 +14,9 @@ NUM_CHANNELS = 3
 
 NUM_CLASSES = 2
 
-pets_training = PetsDataset('/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/', Subset.TRAINING)
-pets_validation = PetsDataset('/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/', Subset.VALIDATION)
-pets_test = PetsDataset('/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/', Subset.TEST)
+pets_training = PetsDataset(dir, Subset.TRAINING)
+pets_validation = PetsDataset(dir, Subset.VALIDATION)
+pets_test = PetsDataset(dir, Subset.TEST)
 
 batchGenerator_training = BatchGenerator(pets_training, len(pets_training), False,
                                          op=chain([type_cast(dtype=np.float32), vectorize()]))
