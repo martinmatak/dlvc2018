@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 
 import os
-import time
 from collections import namedtuple
 
 Vec2 = namedtuple('Vec2', ['x1', 'x2'])
+
 
 class Fn:
     '''
@@ -45,12 +45,15 @@ class Fn:
         Evaluate the function at location loc.
         Raises ValueError if loc is out of bounds.
         '''
+        if loc[0] < 0 or loc[0] >= self._fn.shape[0] \
+                or loc[1] < 0 or loc[1] >= self._fn.shape[1]:
+            raise ValueError("Index " + str(loc) + " is out of bounds")
 
-        # TODO implement
         # you can simply round and map to integers. if so, make sure not to set eps and step_size too low
         # for bonus points you can implement some form of interpolation (linear should be sufficient)
 
-        pass
+        return self._fn[int(loc[0]), int(loc[1])]
+
 
 def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
     '''
@@ -59,9 +62,17 @@ def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
     Raises ValueError if loc is out of bounds of fn or if eps <= 0.
     '''
 
-    # TODO implement one of the two versions presented in the lecture
+    if eps <= 0:
+        raise ValueError("Eps must be > 0.")
+    first_param = (fn(Vec2(loc[0] + eps, loc[1])) - fn(Vec2(loc[0] - eps, loc[1]))) / (2 * eps)
+    second_param = (fn(Vec2(loc[0], loc[1] + eps)) - fn(Vec2(loc[0], loc[1] - eps))) / (2 * eps)
 
-    pass
+    return Vec2(first_param, second_param)
+
+
+def gradient_descent(gradient, step_size):
+    return Vec2(int(loc[0] - step_size * gradient[0]), int(loc[1] - step_size * gradient[1]))
+
 
 if __name__ == '__main__':
     # parse args
@@ -84,12 +95,26 @@ if __name__ == '__main__':
     vis = fn.visualize()
     loc = Vec2(args.sx1, args.sx2)
 
+    step_size = args.step_size
+    beta = args.beta
+    eps = args.eps
+    nesterov = args.nesterov
     # perform gradient descent
 
+    BLUE = [255, 0, 0]
     while True:
+        loc = (int(loc[0]), int(loc[1]))
         # TODO implement normal gradient descent, with momentum, and with nesterov momentum depending on the arguments (see lecture 4 slides)
         # visualize each iteration by drawing on vis using e.g. cv2.line()
         # break out of loop once done
+        new_loc = gradient_descent(grad(fn=fn, loc=loc, eps=eps), step_size)
 
+        if new_loc == loc:
+            print("Minimum found: " + str(new_loc) + ", value: " + str(fn(new_loc)))
+            break
+
+        cv2.line(vis, loc, new_loc, BLUE)
         cv2.imshow('Progress', vis)
         cv2.waitKey(50)  # 20 fps, tune according to your liking
+        loc = new_loc
+
