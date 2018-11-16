@@ -52,7 +52,25 @@ class Fn:
         # you can simply round and map to integers. if so, make sure not to set eps and step_size too low
         # for bonus points you can implement some form of interpolation (linear should be sufficient)
 
-        return self._fn[int(loc[0]), int(loc[1])]
+        # return self._fn[int(loc[0]), int(loc[1])]
+        return self.interpolated_value(loc)
+
+    def interpolated_value(self, loc: Vec2) -> float:
+        # https://stackoverflow.com/questions/32124170/bilinear-image-interpolation-scaling-a-calculation-example
+        x = loc[0]
+        y = loc[1]
+        x1 = int(x)
+        x2 = int(min(x + 1, self._fn.shape[0] - 1))
+
+        y1 = int(y)
+        y2 = int(min(y + 1, self._fn.shape[1] - 1))
+
+        R1 = self._fn[x1, y1] + (x - x1) / (x2 - x1) * (self._fn[x2, y1] - self._fn[x1, y1])
+        R2 = self._fn[x1, y2] + (x - x1) / (x2 - x1) * (self._fn[x2, y2] - self._fn[x1, y2])
+
+        P = R2 + (y - y2) / (y2 - y1) * (R1 - R2)
+
+        return P
 
 
 def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
@@ -101,20 +119,21 @@ if __name__ == '__main__':
     nesterov = args.nesterov
     # perform gradient descent
 
+    firstIteration = True
     BLUE = [255, 0, 0]
     while True:
-        loc = (int(loc[0]), int(loc[1]))
-        # TODO implement normal gradient descent, with momentum, and with nesterov momentum depending on the arguments (see lecture 4 slides)
-        # visualize each iteration by drawing on vis using e.g. cv2.line()
-        # break out of loop once done
-        new_loc = gradient_descent(grad(fn=fn, loc=loc, eps=eps), step_size)
+        # TODO implement normal gradient descent with momentum, and with nesterov momentum depending on the arguments (see lecture 4 slides)
+        gradient = grad(fn=fn, loc=loc, eps=eps)
+        new_loc = gradient_descent(gradient, step_size)
 
-        if new_loc == loc:
+        if new_loc == loc or gradient[0] + gradient[1] < 1e-9:
             print("Minimum found: " + str(new_loc) + ", value: " + str(fn(new_loc)))
             break
 
-        cv2.line(vis, loc, new_loc, BLUE)
-        cv2.imshow('Progress', vis)
-        cv2.waitKey(50)  # 20 fps, tune according to your liking
+        if not firstIteration:
+            cv2.line(vis, loc, new_loc, BLUE)
+            cv2.imshow('Progress', vis)
+            cv2.waitKey(880)  # 20 fps, tune according to your liking
         loc = new_loc
+        firstIteration = False
 
