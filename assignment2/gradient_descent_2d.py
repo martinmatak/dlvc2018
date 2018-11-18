@@ -88,8 +88,8 @@ def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
     return Vec2(first_param, second_param)
 
 
-def gradient_descent(gradient, step_size):
-    return Vec2(int(loc[0] - step_size * gradient[0]), int(loc[1] - step_size * gradient[1]))
+def gradient_too_small(gradient, treshold):
+    return abs(gradient[0]) < treshold or abs(gradient[1]) < treshold
 
 
 if __name__ == '__main__':
@@ -117,23 +117,29 @@ if __name__ == '__main__':
     beta = args.beta
     eps = args.eps
     nesterov = args.nesterov
+    velocityX = 0
+    velocityY = 0
+    treshold = 1e-12
     # perform gradient descent
 
     firstIteration = True
     BLUE = [255, 0, 0]
     while True:
-        # TODO implement normal gradient descent with momentum, and with nesterov momentum depending on the arguments (see lecture 4 slides)
+        # TODO implement normal gradient descent with nesterov momentum depending on the arguments (see lecture 4 slides)
         gradient = grad(fn=fn, loc=loc, eps=eps)
-        new_loc = gradient_descent(gradient, step_size)
+        velocityX = beta * velocityX - step_size * gradient[0]
+        velocityY = beta * velocityY - step_size * gradient[1]
+        new_loc = Vec2(loc[0] + velocityX, loc[1] + velocityY)
 
-        if new_loc == loc or gradient[0] + gradient[1] < 1e-9:
+        if gradient_too_small(gradient, treshold):
+            print("Gradient: " + str(gradient))
             print("Minimum found: " + str(new_loc) + ", value: " + str(fn(new_loc)))
             break
 
         if not firstIteration:
-            cv2.line(vis, loc, new_loc, BLUE)
+            cv2.line(vis, (int(loc[0]), int(loc[1])), (int(new_loc[0]), int(new_loc[1])), BLUE)
             cv2.imshow('Progress', vis)
-            cv2.waitKey(880)  # 20 fps, tune according to your liking
+            cv2.waitKey(20)
         loc = new_loc
         firstIteration = False
 
