@@ -89,7 +89,7 @@ def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
 
 
 def gradient_too_small(gradient, treshold):
-    return abs(gradient[0]) < treshold or abs(gradient[1]) < treshold
+    return abs(gradient[0]) < treshold and abs(gradient[1]) < treshold
 
 
 if __name__ == '__main__':
