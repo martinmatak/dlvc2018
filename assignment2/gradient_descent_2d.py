@@ -125,8 +125,10 @@ if __name__ == '__main__':
     firstIteration = True
     BLUE = [255, 0, 0]
     while True:
-        # TODO implement normal gradient descent with nesterov momentum depending on the arguments (see lecture 4 slides)
-        gradient = grad(fn=fn, loc=loc, eps=eps)
+        if args.nesterov:
+            gradient = grad(fn=fn, loc=(loc[0] + velocityX, loc[1] + velocityY), eps=eps)
+        else:
+            gradient = grad(fn=fn, loc=loc, eps=eps)
         velocityX = beta * velocityX - step_size * gradient[0]
         velocityY = beta * velocityY - step_size * gradient[1]
         new_loc = Vec2(loc[0] + velocityX, loc[1] + velocityY)
