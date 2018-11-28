@@ -1,6 +1,7 @@
 
 import cv2
 import numpy as np
+import math
 
 import os
 from collections import namedtuple
@@ -89,8 +90,7 @@ def grad(fn: Fn, loc: Vec2, eps: float) -> Vec2:
 
 
 def gradient_too_small(gradient, treshold):
-    return abs(gradient[0]) < treshold and abs(gradient[1]) < treshold
-
+    return math.sqrt(gradient[0]*gradient[0] + gradient[1]*gradient[1]) < treshold
 
 if __name__ == '__main__':
     # parse args
