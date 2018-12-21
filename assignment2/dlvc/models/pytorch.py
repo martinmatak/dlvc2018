@@ -1,8 +1,10 @@
-
 from ..model import Model
 
+import torch
 import numpy as np
 import torch.nn as nn
+import torch.optim as optim
+
 
 class CnnClassifier(Model):
     '''
@@ -13,7 +15,7 @@ class CnnClassifier(Model):
     The cross-entropy loss and SGD are used for training.
     '''
 
-    def __init__(self, net: nn.Module, input_shape: int, num_classes: int, lr: float, wd: float):
+    def __init__(self, net: nn.Module, input_shape: tuple, num_classes: int, lr: float, wd: float):
         '''
         Ctor.
         net is the cnn to wrap. see above comments for requirements.
@@ -22,9 +24,37 @@ class CnnClassifier(Model):
         lr: learning rate to use for training (sgd with Nesterov momentum of 0.9).
         wd: weight decay to use for training.
         '''
+        if not isinstance(net, nn.Module):
+            raise TypeError("Input shape has an inappropriate type.")
+        else:
+            self.model = net
+            if torch.cuda.is_available():
+                self.model.cuda()
 
-        # TODO implement
+        if not isinstance(input_shape, tuple):
+            raise TypeError("Input shape is not a tuple.")
+        else:
+            self.input_shape = input_shape
 
+        if isinstance(num_classes, int):
+            if num_classes <= 0:
+                raise ValueError("Number of classes is not negative")
+            else:
+                self.num_classes = num_classes
+        else:
+            raise TypeError("Number of classes has an inappropriate type")
+
+        if not isinstance(lr, float):
+            raise TypeError("Learning rate has an inappropriate type.")
+        else:
+            self.lr = lr
+
+        if not isinstance(input_shape, tuple):
+            raise TypeError("Weight decay has an inappropriate type.")
+        else:
+            self.wd = wd
+        self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=self.wd)
+        self.loss_fc = nn.CrossEntropyLoss()
         # inside the train() and predict() functions you will need to know whether the network itself
         # runs on the cpu or on a gpu, and in the latter case transfer input/output tensors via cuda() and cpu().
         # do termine this, check the type of (one of the) parameters, which can be obtained via parameters() (there is an is_cuda flag).
@@ -36,19 +66,13 @@ class CnnClassifier(Model):
         '''
         Returns the expected input shape as a tuple.
         '''
-
-        # TODO implement
-
-        pass
+        return self.input_shape
 
     def output_shape(self) -> tuple:
         '''
         Returns the shape of predictions for a single sample as a tuple, which is (num_classes,).
         '''
-
-        # TODO implement
-
-        pass
+        return (self.num_classes,)
 
     def train(self, data: np.ndarray, labels: np.ndarray) -> float:
         '''
@@ -60,12 +84,33 @@ class CnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         '''
+        if not isinstance(data, np.ndarray):
+            raise TypeError("Data has an inappropriate type")
+        elif data.dtype != np.float32:
+            raise TypeError("Data must have np.float32 type")
 
-        # TODO implement
+        if not isinstance(labels, np.ndarray):
+            raise TypeError("Data has an inappropriate type")
+        elif labels.dtype != np.uint8:
+            raise TypeError("Data must have np.uint8 type")
+        # Not all the raises has been considered...
+
+        self.model.train()
+        # Clear all accumulated gradients
+        self.optimizer.zero_grad()
+        # Predict
+        outputs = self.model(torch.tensor(data))
+        # Calculate the loss
+        loss = self.loss_fc(outputs, labels)
+        # Back propagate the loss
+        loss.backward()
+        # Adjust parameters according to the computed gradients
+        self.optimizer.step()
+
+        return loss.item() * data.size(0)
+
         # make sure to set the network to train() mode
         # see above comments on cpu/gpu
-
-        pass
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         '''
@@ -76,11 +121,12 @@ class CnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         '''
-
-        # TODO implement
-
+        # Will add raises later for sure
+        self.model.eval()
+        self.optimizer.zero_grad()
+        outputs = self.model(data)
+        predictions = nn.Softmax(outputs, 1)
+        return np.array(predictions.data)
         # pass the network's predictions through a nn.Softmax layer to obtain softmax class scores
         # make sure to set the network to eval() mode
         # see above comments on cpu/gpu
-
-        pass
