@@ -27,14 +27,14 @@ class CnnClassifier(Model):
         if not isinstance(net, nn.Module):
             raise TypeError("Input shape has an inappropriate type.")
         else:
-            self.model = net
-            if torch.cuda.is_available():
-                self.model.cuda()
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            print(self.device)
+            self.model = net.to(self.device)
 
-        if not isinstance(input_shape, tuple):
+        if not (isinstance(input_shape, tuple) and len(input_shape) == 4):
             raise TypeError("Input shape is not a tuple.")
         else:
-            self.input_shape = input_shape
+            self.in_shape = input_shape
 
         if isinstance(num_classes, int):
             if num_classes <= 0:
@@ -49,16 +49,21 @@ class CnnClassifier(Model):
         else:
             self.lr = lr
 
-        if not isinstance(input_shape, tuple):
+        if not isinstance(wd, float):
             raise TypeError("Weight decay has an inappropriate type.")
         else:
             self.wd = wd
+
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=self.wd)
-        self.loss_fc = nn.CrossEntropyLoss()
+
+        self.loss_fn = nn.CrossEntropyLoss()
+
         # inside the train() and predict() functions you will need to know whether the network itself
-        # runs on the cpu or on a gpu, and in the latter case transfer input/output tensors via cuda() and cpu().
-        # do termine this, check the type of (one of the) parameters, which can be obtained via parameters() (there is an is_cuda flag).
-        # you will want to initialize the optimizer and loss function here. note that pytorch's cross-entropy loss includes normalization so no softmax is required
+        # runs on the cpu or on a gpu, and in the latter case transfer input/output tensors via cuda()
+        # and cpu(). do determine this, check the type of (one of the) parameters, which can be obtained
+        # via parameters()(there is an is_cuda flag). you will want to initialize the optimizer and
+        # loss function here. note that pytorch's cross-entropy loss includes normalization so no
+        # softmax is required
 
         pass
 
@@ -66,13 +71,13 @@ class CnnClassifier(Model):
         '''
         Returns the expected input shape as a tuple.
         '''
-        return self.input_shape
+        return self.in_shape
 
     def output_shape(self) -> tuple:
         '''
         Returns the shape of predictions for a single sample as a tuple, which is (num_classes,).
         '''
-        return (self.num_classes,)
+        return self.num_classes,
 
     def train(self, data: np.ndarray, labels: np.ndarray) -> float:
         '''
@@ -84,30 +89,46 @@ class CnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         '''
+        # Check data
         if not isinstance(data, np.ndarray):
             raise TypeError("Data has an inappropriate type")
         elif data.dtype != np.float32:
             raise TypeError("Data must have np.float32 type")
+        elif len(data.shape) != 4:
+            raise ValueError("Prediction must have shape (m,C,H,W)")
+        else:
+            data_tensor = torch.Tensor(data).to(self.device)
 
+        # Check Label
         if not isinstance(labels, np.ndarray):
             raise TypeError("Data has an inappropriate type")
         elif labels.dtype != np.uint8:
             raise TypeError("Data must have np.uint8 type")
-        # Not all the raises has been considered...
+        elif not ((0 <= m < self.num_classes) for m in labels):
+            raise ValueError("Labels has a inappropriate value")
+        elif len(labels.shape) != 1:
+            raise ValueError("Prediction must have shape (m,)")
+        else:
+            label_tensor = torch.Tensor(labels).long().to(self.device)
+
+        # Check if network is running on GPU or CPU
+        #t = next(iter(self.model.parameters()))
+        #if not t.is_cuda:
+        #    print("It is not Cuda")
 
         self.model.train()
         # Clear all accumulated gradients
         self.optimizer.zero_grad()
         # Predict
-        outputs = self.model(torch.tensor(data))
+        outputs = self.model(data_tensor)
         # Calculate the loss
-        loss = self.loss_fc(outputs, labels)
+        loss = self.loss_fn(outputs, label_tensor)
         # Back propagate the loss
         loss.backward()
         # Adjust parameters according to the computed gradients
         self.optimizer.step()
 
-        return loss.item() * data.size(0)
+        return loss.item() * self.in_shape[0]
 
         # make sure to set the network to train() mode
         # see above comments on cpu/gpu
@@ -121,12 +142,28 @@ class CnnClassifier(Model):
         Raises ValueError on invalid argument values.
         Raises RuntimeError on other errors.
         '''
-        # Will add raises later for sure
+        if not isinstance(data, np.ndarray):
+            raise TypeError("Data has an inappropriate type")
+        elif data.dtype != np.float32:
+            raise TypeError("Data must have np.float32 type")
+        elif len(data.shape) != 4:
+            raise ValueError("Prediction must have shape (m,C,H,W)")
+        else:
+            data_tensor = torch.Tensor(data).to(self.device)
+
+        # Check if network is running on GPU or CPU
+        #t = next(iter(self.model.parameters()))
+        #if not t.is_cuda:
+        #    print("It is not Cuda")
+
         self.model.eval()
-        self.optimizer.zero_grad()
-        outputs = self.model(data)
-        predictions = nn.Softmax(outputs, 1)
-        return np.array(predictions.data)
+
+        outputs = self.model(data_tensor)
+
+        softmax = nn.Softmax(dim=1)
+        predictions = softmax(outputs)
+
+        return predictions
         # pass the network's predictions through a nn.Softmax layer to obtain softmax class scores
         # make sure to set the network to eval() mode
         # see above comments on cpu/gpu
