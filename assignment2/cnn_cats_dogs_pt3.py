@@ -22,6 +22,7 @@ lr = 0.001
 wd = 0.00001
 
 EARLY_STOPPING = True
+USE_DROPOUT = True
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
@@ -41,7 +42,7 @@ batchGenerator_test = BatchGenerator(pets_test, BATCH_SIZE, False,
 class CatDogNet(nn.Module):
     def __init__(self):
         super(CatDogNet, self).__init__()
-        # First Layer 2xConv and Max pool out_Shape = (16x16x32)
+        # First Layer 2xConv and Max pool; out_Shape = (16x16x32)
         self.conv1_layer1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1)
         self.relu1_layer1 = nn.ReLU()
 
@@ -50,7 +51,7 @@ class CatDogNet(nn.Module):
 
         self.max_pool_layer1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # second Layer 2xConv and Max pool out_shape = (8x8x64)
+        # second Layer 2xConv and Max pool ;out_shape = (8x8x64)
         self.conv1_layer2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.relu1_layer2 = nn.ReLU()
 
@@ -59,7 +60,7 @@ class CatDogNet(nn.Module):
 
         self.max_pool_layer2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # Third Layer 2xConv and average pool out_shape = (4x4x128)
+        # Third Layer 2xConv and average pool; out_shape = (4x4x128)
         self.conv1_layer3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.relu1_layer3 = nn.ReLU()
 
@@ -69,18 +70,35 @@ class CatDogNet(nn.Module):
         self.avg_pool_layer3 = nn.AvgPool2d(kernel_size=2, stride=2)
 
         # Add all the units into the Sequential layer in exact order
-        self.cnn_net = nn.Sequential(self.conv1_layer1, self.relu1_layer1, self.conv2_layer1, self.relu2_layer1,
-                                     self.max_pool_layer1,
-                                     self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
-                                     self.max_pool_layer2,
-                                     self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
-                                     self.avg_pool_layer3)
+        self.cnn_net = nn.Sequential(
+            self.conv1_layer1,
+            self.relu1_layer1,
+            self.conv2_layer1,
+            self.relu2_layer1,
+            self.max_pool_layer1,
+
+            self.conv1_layer2,
+            self.relu1_layer2,
+            self.conv2_layer2,
+            self.relu2_layer2,
+            self.max_pool_layer2,
+
+            self.conv1_layer3,
+            self.relu1_layer3,
+            self.conv2_layer3,
+            self.relu2_layer3,
+            self.avg_pool_layer3
+        )
+
+        self.dropout_layer = nn.Dropout(0.5)
 
         self.fc = nn.Linear(in_features=2048, out_features=NUM_CLASSES)
 
     # override
     def forward(self, input):
         output = self.cnn_net(input)
+        if USE_DROPOUT:
+            output = self.dropout_layer(output)
         output = output.view(-1, 4 * 4 * 128)
         output = self.fc(output)
         return output
