@@ -1,9 +1,11 @@
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
 from dlvc.batches import BatchGenerator
-from dlvc.ops import vectorize, chain, type_cast, hwc2chw, chw2hwc, mul, add
+from dlvc.ops import chain, type_cast, hwc2chw, mul, add
 from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
+
+import torch
 import torch.nn as nn
 import numpy as np
 
@@ -18,6 +20,8 @@ NUM_CLASSES = 2
 EPOCHS = 100
 lr = 0.001
 wd = 0.00001
+
+EARLY_STOPPING = False
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
@@ -65,11 +69,11 @@ class CatDogNet(nn.Module):
 
         # Add all the units into the Sequential layer in exact order
         self.cnn_net = nn.Sequential(self.conv1_layer1, self.relu1_layer1, self.conv2_layer1, self.relu2_layer1,
-                                 self.max_pool_layer1,
-                                 self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
-                                 self.max_pool_layer2,
-                                 self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
-                                 self.avg_pool_layer3)
+                                     self.max_pool_layer1,
+                                     self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
+                                     self.max_pool_layer2,
+                                     self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
+                                     self.avg_pool_layer3)
 
         self.fc = nn.Linear(in_features=2048, out_features=NUM_CLASSES)
 
@@ -84,6 +88,8 @@ class CatDogNet(nn.Module):
 net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
+best_accuracy = Accuracy()
+
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
@@ -101,3 +107,14 @@ for epoch in range(0, EPOCHS):
         accuracy.update(predictions.detach().numpy(), batch.labels)
 
     print("Val " + str(accuracy))
+
+    if EARLY_STOPPING:
+        if best_accuracy < accuracy:
+            best_accuracy = accuracy
+            torch.save(net.state_dict(), "cnn_cats_dogs_pt3.py")
+
+# TODO:
+#  1. more data augmentation techniques (Inspiration can be found at: https://medium.com/nanonets/how-to-use-deep-learning-when-you-have-limited-data-part-2-data-augmentation-c26971dc8ced)
+#  2. dropout as a regularization technique
+#  3. transfer learning
+#  run the experiments :) 
