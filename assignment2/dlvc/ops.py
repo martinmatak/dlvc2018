@@ -2,6 +2,7 @@ import numpy as np
 import random
 
 from typing import List, Callable
+
 # All operations are functions that take and return numpy arrays
 # See https://docs.python.org/3/library/typing.html#typing.Callable for what this line means
 Op = Callable[[np.ndarray], np.ndarray]
@@ -91,12 +92,13 @@ def mul(val: float) -> Op:
 
     return op
 
+
 def norm() -> Op:
     '''
     Per-channel normalization based on statistics of training set
     '''
 
-    #TODO implement
+    # TODO implement
 
     pass
 
@@ -122,7 +124,18 @@ def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
     Raises ValueError if sz exceeds the array width/height after padding.
     '''
 
-    # TODO implement
-    # https://docs.scipy.org/doc/numpy-1.15.1/reference/generated/numpy.pad.html will be helpful
+    def op(sample: np.ndarray) -> np.ndarray:
+        if pad > 0:
+            # npad is a tuple of (n_before, n_after) for each dimension
+            npad = ((pad, pad), (pad, pad), (0, 0))
+            sample = np.pad(sample, npad, pad_mode)
 
-    pass
+        if sz > sample.shape[0] or sz > sample.shape[1]:
+            raise ValueError("Square to crop exceeds the array width/height (after padding).")
+
+        y = random.randint(0, sample.shape[0] - sz + 1)
+        x = random.randint(0, sample.shape[1] - sz + 1)
+
+        return sample[y:y + sz, x:x + sz, :]
+
+    return op
