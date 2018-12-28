@@ -7,7 +7,7 @@ from dlvc.test import Accuracy
 import torch.nn as nn
 import numpy as np
 
-dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
+dir = '/home/e1635889/datasets/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
