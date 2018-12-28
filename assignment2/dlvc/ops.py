@@ -1,6 +1,7 @@
 import numpy as np
-from typing import List, Callable
+import random
 
+from typing import List, Callable
 # All operations are functions that take and return numpy arrays
 # See https://docs.python.org/3/library/typing.html#typing.Callable for what this line means
 Op = Callable[[np.ndarray], np.ndarray]
@@ -96,5 +97,32 @@ def norm() -> Op:
     '''
 
     #TODO implement
+
+    pass
+
+
+def hflip() -> Op:
+    '''
+    Flip arrays with shape HWC horizontally with a probability of 0.5.
+    '''
+
+    def op(sample: np.ndarray) -> np.ndarray:
+        if random.random() < 0.5:
+            sample = np.fliplr(sample)
+        return sample
+
+    return op
+
+
+def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
+    '''
+    Extract a square random crop of size sz from arrays with shape HWC.
+    If pad is > 0, the array is first padded by pad pixels along the top, left, bottom, and right.
+    How padding is done is governed by pad_mode, which should work exactly as the 'mode' argument of numpy.pad.
+    Raises ValueError if sz exceeds the array width/height after padding.
+    '''
+
+    # TODO implement
+    # https://docs.scipy.org/doc/numpy-1.15.1/reference/generated/numpy.pad.html will be helpful
 
     pass
