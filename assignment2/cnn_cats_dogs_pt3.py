@@ -133,6 +133,5 @@ for epoch in range(0, EPOCHS):
             torch.save(net.state_dict(), "best_model.pth")
 
 # TODO:
-#  2. dropout as a regularization technique
-#  3. transfer learning
+#  optional: transfer learning
 #  run the experiments :) 
