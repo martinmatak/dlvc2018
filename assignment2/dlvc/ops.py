@@ -116,6 +116,21 @@ def hflip() -> Op:
     return op
 
 
+def vflip() -> Op:
+    '''
+    Flip arrays with shape HWC vertically with a probability of 0.5.
+    '''
+
+    def op(sample: np.ndarray) -> np.ndarray:
+        # rotate for 180 + horizontal flip
+        if random.random() < 0.5:
+            sample = np.rot90(sample, 2)
+            sample = np.fliplr(sample)
+
+        return sample
+    return op
+
+
 def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
     '''
     Extract a square random crop of size sz from arrays with shape HWC.
@@ -143,3 +158,17 @@ def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
         return new_sample
 
     return op
+
+
+def rotate90(k: int) -> Op:
+    '''
+    Rotates image from the first towards the second axis for k * 90 degrees with a probability of 0.5.
+    If k is odd number, height and width of an image will be changed (swapped).
+    :param k: how many times image will be rotated for 90 degrees.
+    '''
+    def op(sample: np.ndarray) -> np.ndarray:
+        if random.random() < 0.5:
+            sample = np.rot90(sample, k)
+        return sample
+    return op
+

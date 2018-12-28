@@ -1,7 +1,7 @@
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
 from dlvc.batches import BatchGenerator
-from dlvc.ops import chain, type_cast, hwc2chw, mul, add, rcrop, hflip
+from dlvc.ops import chain, type_cast, hwc2chw, mul, add, rcrop, hflip, vflip, rotate90
 from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 
@@ -30,7 +30,7 @@ pets_test = PetsDataset(dir, Subset.TEST)
 batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, False,
                                          op=chain(
                                              [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5),
-                                                 rcrop(10, 15, 'edge'), hflip(), hwc2chw()]))
+                                                 rcrop(10, 15, 'edge'), hflip(), vflip(), rotate90(1), hwc2chw()]))
 batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, False,
                                            op=chain(
                                                [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))
@@ -115,7 +115,6 @@ for epoch in range(0, EPOCHS):
             torch.save(net.state_dict(), "best_model.pth")
 
 # TODO:
-#  1. more data augmentation techniques (Inspiration can be found at: https://medium.com/nanonets/how-to-use-deep-learning-when-you-have-limited-data-part-2-data-augmentation-c26971dc8ced)
 #  2. dropout as a regularization technique
 #  3. transfer learning
 #  run the experiments :) 
