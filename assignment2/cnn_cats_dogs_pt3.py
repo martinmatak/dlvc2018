@@ -1,7 +1,7 @@
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
 from dlvc.batches import BatchGenerator
-from dlvc.ops import chain, type_cast, hwc2chw, mul, add
+from dlvc.ops import vectorize, chain, type_cast, hwc2chw, chw2hwc, mul, add
 from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 import torch.nn as nn
@@ -17,8 +17,7 @@ BATCH_SIZE = 128
 NUM_CLASSES = 2
 EPOCHS = 100
 lr = 0.001
-# weight decay 0 in this configuration, in part 3 this is changed
-wd = 0
+wd = 0.00001
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
