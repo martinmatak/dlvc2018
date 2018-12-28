@@ -111,7 +111,7 @@ for epoch in range(0, EPOCHS):
     if EARLY_STOPPING:
         if best_accuracy < accuracy:
             best_accuracy = accuracy
-            torch.save(net.state_dict(), "cnn_cats_dogs_pt3.py")
+            torch.save(net.state_dict(), "best_model.pth")
 
 # TODO:
 #  1. more data augmentation techniques (Inspiration can be found at: https://medium.com/nanonets/how-to-use-deep-learning-when-you-have-limited-data-part-2-data-augmentation-c26971dc8ced)

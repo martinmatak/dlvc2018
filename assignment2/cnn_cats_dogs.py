@@ -18,7 +18,7 @@ NUM_CLASSES = 2
 EPOCHS = 100
 lr = 0.001
 # weight decay 0 in this configuration, in part 3 this is changed
-wd = 0
+wd = 0.0
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
