@@ -1,7 +1,7 @@
 from dlvc.datasets.pets import PetsDataset
 from dlvc.dataset import Subset
 from dlvc.batches import BatchGenerator
-from dlvc.ops import chain, type_cast, hwc2chw, mul, add
+from dlvc.ops import chain, type_cast, hwc2chw, mul, add, rcrop, hflip
 from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 
@@ -21,7 +21,7 @@ EPOCHS = 100
 lr = 0.001
 wd = 0.00001
 
-EARLY_STOPPING = False
+EARLY_STOPPING = True
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
@@ -29,7 +29,8 @@ pets_test = PetsDataset(dir, Subset.TEST)
 
 batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, False,
                                          op=chain(
-                                             [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))
+                                             [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5),
+                                                 rcrop(10, 15, 'edge'), hflip(), hwc2chw()]))
 batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, False,
                                            op=chain(
                                                [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))

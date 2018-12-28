@@ -1,6 +1,6 @@
 import numpy as np
 import random
-
+import cv2
 from typing import List, Callable
 
 # All operations are functions that take and return numpy arrays
@@ -125,6 +125,8 @@ def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
     '''
 
     def op(sample: np.ndarray) -> np.ndarray:
+        height = sample.shape[0]
+        width = sample.shape[1]
         if pad > 0:
             # npad is a tuple of (n_before, n_after) for each dimension
             npad = ((pad, pad), (pad, pad), (0, 0))
@@ -133,9 +135,11 @@ def rcrop(sz: int, pad: int, pad_mode: str) -> Op:
         if sz > sample.shape[0] or sz > sample.shape[1]:
             raise ValueError("Square to crop exceeds the array width/height (after padding).")
 
-        y = random.randint(0, sample.shape[0] - sz + 1)
-        x = random.randint(0, sample.shape[1] - sz + 1)
+        y = random.randint(0, sample.shape[0] - sz)
+        x = random.randint(0, sample.shape[1] - sz)
 
-        return sample[y:y + sz, x:x + sz, :]
+        cropped = sample[y:y + sz, x:x + sz, :]
+        new_sample = cv2.resize(cropped, dsize=(height, width))
+        return new_sample
 
     return op
