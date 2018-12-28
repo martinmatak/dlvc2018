@@ -32,13 +32,13 @@ class CnnClassifier(Model):
             self.model = net.to(self.device)
 
         if not (isinstance(input_shape, tuple) and len(input_shape) == 4):
-            raise TypeError("Input shape is not a tuple.")
+            raise TypeError("Input shape must be a tuple of length 4.")
         else:
             self.in_shape = input_shape
 
         if isinstance(num_classes, int):
             if num_classes <= 0:
-                raise ValueError("Number of classes is not negative")
+                raise ValueError("Number of classes must not be negative")
             else:
                 self.num_classes = num_classes
         else:

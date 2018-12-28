@@ -6,9 +6,8 @@ from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 import torch.nn as nn
 import numpy as np
-import cv2
 
-dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
+dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -32,6 +31,7 @@ batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, False,
                                                [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))
 batchGenerator_test = BatchGenerator(pets_test, BATCH_SIZE, False,
                                      op=chain([type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))
+
 
 class CatDogNet(nn.Module):
     def __init__(self):
@@ -79,6 +79,7 @@ class CatDogNet(nn.Module):
         output = output.view(-1, 4 * 4 * 128)
         output = self.fc(output)
         return output
+
 
 net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
