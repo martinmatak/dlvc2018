@@ -112,7 +112,7 @@ class CnnClassifier(Model):
         # Check if network is running on GPU or CPU
         t = next(iter(self.model.parameters()))
         if not t.is_cuda:
-            raise RuntimeError("Program should use GPU for training. Currently running on CPU")
+            print("WARNING: Program should use GPU for training. Currently running on CPU")
 
         self.model.train()
         # Clear all accumulated gradients
@@ -127,9 +127,6 @@ class CnnClassifier(Model):
         self.optimizer.step()
 
         return loss.item() * self.in_shape[0]
-
-        # make sure to set the network to train() mode
-        # see above comments on cpu/gpu
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         '''
@@ -149,11 +146,6 @@ class CnnClassifier(Model):
         else:
             data_tensor = torch.Tensor(data).to(self.device)
 
-        # Check if network is running on GPU or CPU
-        t = next(iter(self.model.parameters()))
-        if not t.is_cuda:
-            raise RuntimeError("Program should use GPU for training. Currently running on CPU")
-
         self.model.eval()
 
         outputs = self.model(data_tensor)
@@ -162,6 +154,3 @@ class CnnClassifier(Model):
         predictions = softmax(outputs)
 
         return predictions
-        # pass the network's predictions through a nn.Softmax layer to obtain softmax class scores
-        # make sure to set the network to eval() mode
-        # see above comments on cpu/gpu

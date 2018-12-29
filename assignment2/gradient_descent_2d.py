@@ -50,10 +50,6 @@ class Fn:
                 or loc[1] < 0 or loc[1] >= self._fn.shape[1]:
             raise ValueError("Index " + str(loc) + " is out of bounds")
 
-        # you can simply round and map to integers. if so, make sure not to set eps and step_size too low
-        # for bonus points you can implement some form of interpolation (linear should be sufficient)
-
-        # return self._fn[int(loc[0]), int(loc[1])]
         return self.interpolated_value(loc)
 
     def interpolated_value(self, loc: Vec2) -> float:
