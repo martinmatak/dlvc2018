@@ -110,9 +110,9 @@ class CnnClassifier(Model):
             label_tensor = torch.Tensor(labels).long().to(self.device)
 
         # Check if network is running on GPU or CPU
-        #t = next(iter(self.model.parameters()))
-        #if not t.is_cuda:
-        #    print("It is not Cuda")
+        t = next(iter(self.model.parameters()))
+        if not t.is_cuda:
+            raise RuntimeError("Program should use GPU for training. Currently running on CPU")
 
         self.model.train()
         # Clear all accumulated gradients
@@ -150,9 +150,9 @@ class CnnClassifier(Model):
             data_tensor = torch.Tensor(data).to(self.device)
 
         # Check if network is running on GPU or CPU
-        #t = next(iter(self.model.parameters()))
-        #if not t.is_cuda:
-        #    print("It is not Cuda")
+        t = next(iter(self.model.parameters()))
+        if not t.is_cuda:
+            raise RuntimeError("Program should use GPU for training. Currently running on CPU")
 
         self.model.eval()
 
