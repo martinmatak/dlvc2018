@@ -9,7 +9,9 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+# dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+#dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -123,7 +125,7 @@ for epoch in range(0, EPOCHS):
     accuracy = Accuracy()
     for batch in batchGenerator_validation:
         predictions = clf.predict(batch.data)
-        accuracy.update(predictions.detach().numpy(), batch.labels)
+        accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
 
     print("Val " + str(accuracy))
 
