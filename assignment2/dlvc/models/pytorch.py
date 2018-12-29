@@ -101,9 +101,7 @@ class CnnClassifier(Model):
 
         # Check Label
         if not isinstance(labels, np.ndarray):
-            raise TypeError("Data has an inappropriate type")
-        elif labels.dtype != np.uint8:
-            raise TypeError("Data must have np.uint8 type")
+            raise TypeError("Label has an inappropriate type")
         elif not ((0 <= m < self.num_classes) for m in labels):
             raise ValueError("Labels has a inappropriate value")
         elif len(labels.shape) != 1:
