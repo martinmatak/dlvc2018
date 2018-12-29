@@ -6,6 +6,7 @@ from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 import torch.nn as nn
 import numpy as np
+import torch
 
 dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
 
@@ -15,7 +16,7 @@ NUM_CHANNELS = 3
 
 BATCH_SIZE = 128
 NUM_CLASSES = 2
-EPOCHS = 100
+EPOCHS = 1
 lr = 0.001
 # weight decay 0 in this configuration, in part 3 this is changed
 wd = 0.0
@@ -100,6 +101,6 @@ for epoch in range(0, EPOCHS):
     accuracy = Accuracy()
     for batch in batchGenerator_validation:
         predictions = clf.predict(batch.data)
-        accuracy.update(predictions.detach().numpy(), batch.labels)
+        accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
 
     print("Val " + str(accuracy))
