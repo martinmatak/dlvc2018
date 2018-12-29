@@ -11,7 +11,7 @@ import numpy as np
 
 # dir = '/home/e1635889/datasets/cifar-10-batches-py/'
 #dir = '/home/e1635889/datasets/cifar-10-batches-py/'
-dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py'
+dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -119,7 +119,7 @@ for epoch in range(0, EPOCHS):
         loss = clf.train(batch.data, batch.labels)
         loss_list.append(loss)
 
-    loss = np.array(loss)
+    loss = np.array(loss_list)
     loss_mean = np.mean(loss)
     loss_deviation = np.std(loss)
     print("Train loss: ", loss_mean, "-+", loss_deviation)

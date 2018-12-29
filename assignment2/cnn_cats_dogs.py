@@ -94,7 +94,7 @@ for epoch in range(0, EPOCHS):
         loss = clf.train(batch.data, batch.labels)
         loss_list.append(loss)
 
-    loss = np.array(loss)
+    loss = np.array(loss_list)
     loss_mean = np.mean(loss)
     loss_deviation = np.std(loss)
     print("Train loss: ", loss_mean, "-+", loss_deviation)
