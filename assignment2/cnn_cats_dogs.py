@@ -7,7 +7,7 @@ from dlvc.test import Accuracy
 import torch.nn as nn
 import numpy as np
 
-dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -66,11 +66,11 @@ class CatDogNet(nn.Module):
 
         # Add all the units into the Sequential layer in exact order
         self.cnn_net = nn.Sequential(self.conv1_layer1, self.relu1_layer1, self.conv2_layer1, self.relu2_layer1,
-                                 self.max_pool_layer1,
-                                 self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
-                                 self.max_pool_layer2,
-                                 self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
-                                 self.avg_pool_layer3)
+                                     self.max_pool_layer1,
+                                     self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
+                                     self.max_pool_layer2,
+                                     self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
+                                     self.avg_pool_layer3)
 
         self.fc = nn.Linear(in_features=2048, out_features=NUM_CLASSES)
 
@@ -94,7 +94,8 @@ for epoch in range(0, EPOCHS):
 
     loss = np.array(loss)
     loss_mean = np.mean(loss)
-    print("Train loss: ", loss_mean)
+    loss_deviation = np.std(loss)
+    print("Train loss: ", loss_mean, "-+", loss_deviation)
 
     accuracy = Accuracy()
     for batch in batchGenerator_validation:
