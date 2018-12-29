@@ -24,6 +24,7 @@ lr = 0.001
 wd = 0.00001
 
 EARLY_STOPPING = True
+EARLY_STOPPING_NUM_OF_EPOCHS = 20
 USE_DROPOUT = True
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
@@ -110,7 +111,7 @@ net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
 best_accuracy = Accuracy()
-
+epochs_since_best_accuracy = 0
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
@@ -120,7 +121,8 @@ for epoch in range(0, EPOCHS):
 
     loss = np.array(loss)
     loss_mean = np.mean(loss)
-    print("Train loss: ", loss_mean)
+    loss_deviation = np.std(loss)
+    print("Train loss: ", loss_mean, "-+", loss_deviation)
 
     accuracy = Accuracy()
     for batch in batchGenerator_validation:
@@ -130,10 +132,12 @@ for epoch in range(0, EPOCHS):
     print("Val " + str(accuracy))
 
     if EARLY_STOPPING:
+        epochs_since_best_accuracy += 1
         if best_accuracy < accuracy:
             best_accuracy = accuracy
             torch.save(net.state_dict(), "best_model.pth")
-
-# TODO:
-#  optional: transfer learning
-#  run the experiments :) 
+            epochs_since_best_accuracy = 0
+        if epochs_since_best_accuracy > EARLY_STOPPING_NUM_OF_EPOCHS:
+            print(str(EARLY_STOPPING_NUM_OF_EPOCHS) +
+                  " epochs passed without improvement in validation accuracy. Stopping the training now.")
+            break
