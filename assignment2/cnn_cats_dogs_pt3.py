@@ -9,9 +9,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-# dir = '/home/e1635889/datasets/cifar-10-batches-py/'
-#dir = '/home/e1635889/datasets/cifar-10-batches-py/'
-dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
+dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+#dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -19,13 +18,14 @@ NUM_CHANNELS = 3
 
 BATCH_SIZE = 128
 NUM_CLASSES = 2
-EPOCHS = 100
-lr = 0.001
-wd = 0.00001
+EPOCHS = 1000
+lr = 0.01
+wd = 0.0000001
+#wd = 0.0
 
 EARLY_STOPPING = True
-EARLY_STOPPING_NUM_OF_EPOCHS = 20
-USE_DROPOUT = True
+EARLY_STOPPING_NUM_OF_EPOCHS = 100
+USE_DROPOUT = True 
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
@@ -33,8 +33,8 @@ pets_test = PetsDataset(dir, Subset.TEST)
 
 batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, False,
                                          op=chain(
-                                             [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5),
-                                                 rcrop(10, 15, 'edge'), hflip(), vflip(), rotate90(1), hwc2chw()]))
+                                             [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), rcrop(25,2, 'median'),
+                                                  hwc2chw()]))
 batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, False,
                                            op=chain(
                                                [type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), hwc2chw()]))
@@ -130,6 +130,7 @@ for epoch in range(0, EPOCHS):
         accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
 
     print("Val " + str(accuracy))
+    print("best val accuracy: " + str(best_accuracy))
 
     if EARLY_STOPPING:
         epochs_since_best_accuracy += 1
@@ -139,5 +140,6 @@ for epoch in range(0, EPOCHS):
             epochs_since_best_accuracy = 0
         if epochs_since_best_accuracy > EARLY_STOPPING_NUM_OF_EPOCHS:
             print(str(EARLY_STOPPING_NUM_OF_EPOCHS) +
-                  " epochs passed without improvement in validation accuracy. Stopping the training now.")
+                  " epochs passed without improvement in validation accuracy. Stopping the training now." +
+		  "best validation accuracy: " + str(best_accuracy))
             break
