@@ -28,7 +28,6 @@ class CnnClassifier(Model):
             raise TypeError("Input shape has an inappropriate type.")
         else:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            print(self.device)
             self.model = net.to(self.device)
 
         if not (isinstance(input_shape, tuple) and len(input_shape) == 4):
@@ -53,7 +52,7 @@ class CnnClassifier(Model):
             raise TypeError("Weight decay has an inappropriate type.")
         else:
             self.wd = wd
-
+        self.warning_is_showed_flag = False
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=self.wd)
 
         self.loss_fn = nn.CrossEntropyLoss()
@@ -111,8 +110,9 @@ class CnnClassifier(Model):
 
         # Check if network is running on GPU or CPU
         t = next(iter(self.model.parameters()))
-        if not t.is_cuda:
+        if not t.is_cuda and self.warning_is_showed_flag is False:
             print("WARNING: Program should use GPU for training. Currently running on CPU")
+            self.warning_is_showed_flag = True
 
         self.model.train()
         # Clear all accumulated gradients
@@ -126,7 +126,7 @@ class CnnClassifier(Model):
         # Adjust parameters according to the computed gradients
         self.optimizer.step()
 
-        return loss.item() * self.in_shape[0]
+        return loss.item()
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         '''
