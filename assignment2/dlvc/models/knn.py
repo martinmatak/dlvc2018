@@ -166,7 +166,15 @@ class KnnClassifier(Model):
         denominator = 0
         for value in votes.values():
             denominator += np.exp(value)
+
         result = []
+        sum_probabilities = 0.0
+
         for classIndex in range(0, self.num_classes):
-            result.append(votes.get(classIndex, 0) * 1.0 / denominator)
+            if classIndex == self.num_classes - 1:
+                result.append(1.0 - sum_probabilities)
+            else:
+                probability = votes.get(classIndex, 0) * 1.0 / denominator
+                sum_probabilities += probability
+                result.append(probability)
         return result
