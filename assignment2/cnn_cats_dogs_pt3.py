@@ -110,7 +110,7 @@ class CatDogNet(nn.Module):
 net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
-best_accuracy = Accuracy()
+best_accuracy = 0.0
 accuracy = Accuracy()
 epochs_since_best_accuracy = 0
 for epoch in range(0, EPOCHS):
@@ -135,8 +135,8 @@ for epoch in range(0, EPOCHS):
 
     if EARLY_STOPPING:
         epochs_since_best_accuracy += 1
-        if best_accuracy < accuracy:
-            best_accuracy = accuracy
+        if best_accuracy < accuracy.accuracy():
+            best_accuracy = accuracy.accuracy()
             torch.save(net.state_dict(), "best_model.pth")
             epochs_since_best_accuracy = 0
         if epochs_since_best_accuracy > EARLY_STOPPING_NUM_OF_EPOCHS:
