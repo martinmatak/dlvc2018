@@ -44,7 +44,7 @@ treshold = 10e-6
 for batch in batchGenerator:
     predictedLabels = knn.predict(batch.data)
     accuracy = measure_accuracy(predictedLabels, groundTruthLabels)
-assert abs(accuracy - 1.0) < treshold, "Accuracy is different than 1!"
+assert abs(accuracy - 1.0) < treshold, "Accuracy is " + str(accuracy) + " expected: 1.0"
 
 end = time.time()
 ####################################################

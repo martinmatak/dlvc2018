@@ -124,12 +124,14 @@ class KnnClassifier(Model):
         '''
 
         classVotes = {}
+
+        for i in range(0, self.num_classes):
+            classVotes[i] = 0
+
         for x in range(len(neighbors)):
             response = neighbors[x]["label"]
-            if response in classVotes:
-                classVotes[response] += 1
-            else:
-                classVotes[response] = 1
+            classVotes[response] += 1
+
         return classVotes
 
     # use if small differences in between pixel values are more important than bigger differences (outliers)
@@ -163,18 +165,17 @@ class KnnClassifier(Model):
         return neighbors
 
     def softmax(self, votes):
-        denominator = 0
+        denominator = 0.0
         for value in votes.values():
             denominator += np.exp(value)
-
         result = []
+
         sum_probabilities = 0.0
 
         for classIndex in range(0, self.num_classes):
-            if classIndex == self.num_classes - 1:
-                result.append(1.0 - sum_probabilities)
-            else:
-                probability = votes.get(classIndex, 0) * 1.0 / denominator
-                sum_probabilities += probability
-                result.append(probability)
+            probability = np.exp(votes.get(classIndex, 0) * 1.0) / denominator
+            sum_probabilities += probability
+            result.append(probability)
+
+        assert sum_probabilities == 1.0, sum_probabilities
         return result
