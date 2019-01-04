@@ -115,6 +115,12 @@ batch_generator = BatchGenerator(dataset_training, 500, False)
 num_of_batches = len(batch_generator)
 expected = 16
 assert num_of_batches == expected, "Number of batches is " + str(num_of_batches) + ", expected: " + str(expected)
+# and the last batch has size 459
+batch_idx = 0
+for batch in batch_generator:
+    batch_idx += 1
+    if batch_idx == 16:
+        assert len(batch.labels) == 459, "Num of samples in the last batch is: " + str(len(batch.labels)) + ", expected: 459"
 
 # The data and label shapes are (500, 3072) and (500,), respectively, unless for the last batch
 batch_generator = BatchGenerator(dataset_training, 500, shuffle=False, op=vectorize())
