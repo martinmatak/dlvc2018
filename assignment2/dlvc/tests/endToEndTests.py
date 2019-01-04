@@ -26,8 +26,8 @@ batchGenerator = BatchGenerator(pets, len(pets), False, op=chain([type_cast(dtyp
 
 groundTruthLabels = None
 for batch in batchGenerator:
-    knn.train(batch.data, batch.labels)
-    groundTruthLabels = batch.labels
+    knn.train(batch.data, batch.label)
+    groundTruthLabels = batch.label
 
 predictedLabels = None
 
