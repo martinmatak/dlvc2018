@@ -64,8 +64,8 @@ class Accuracy(PerformanceMeasure):
         self.prediction = None
         self.target = None
 
-        # recalculate the whole accuracy only when requested and a new batch is inserted since the last request
-        self.state_updated = True
+        # recalculate the whole accuracy only when a new batch is inserted since the last request
+        self.state_updated = False
 
     def reset(self):
         '''
@@ -75,7 +75,7 @@ class Accuracy(PerformanceMeasure):
         self.value = 0.0
         self.prediction = None
         self.target = None
-        self.state_updated = True
+        self.state_updated = False
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
