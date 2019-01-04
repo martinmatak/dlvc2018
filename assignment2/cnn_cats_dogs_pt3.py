@@ -116,7 +116,7 @@ for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
     for batch in batchGenerator_training:
-        loss = clf.train(batch.data, batch.labels)
+        loss = clf.train(batch.data, batch.label)
         loss_list.append(loss)
 
     loss = np.array(loss_list)
@@ -127,7 +127,7 @@ for epoch in range(0, EPOCHS):
     accuracy = Accuracy()
     for batch in batchGenerator_validation:
         predictions = clf.predict(batch.data)
-        accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
+        accuracy.update(predictions.cpu().detach().numpy(), batch.label)
 
     print("Val " + str(accuracy))
     print("best val accuracy: " + str(best_accuracy))
