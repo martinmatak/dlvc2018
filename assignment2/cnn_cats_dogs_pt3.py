@@ -110,13 +110,14 @@ class CatDogNet(nn.Module):
 net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
-best_accuracy = Accuracy()
+best_accuracy = 0.0
+accuracy = Accuracy()
 epochs_since_best_accuracy = 0
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
     for batch in batchGenerator_training:
-        loss = clf.train(batch.data, batch.labels)
+        loss = clf.train(batch.data, batch.label)
         loss_list.append(loss)
 
     loss = np.array(loss_list)
@@ -124,18 +125,18 @@ for epoch in range(0, EPOCHS):
     loss_deviation = np.std(loss)
     print("Train loss: ", loss_mean, "-+", loss_deviation)
 
-    accuracy = Accuracy()
+    accuracy.reset()
     for batch in batchGenerator_validation:
         predictions = clf.predict(batch.data)
-        accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
+        accuracy.update(predictions.cpu().detach().numpy(), batch.label)
 
     print("Val " + str(accuracy))
     print("best val accuracy: " + str(best_accuracy))
 
     if EARLY_STOPPING:
         epochs_since_best_accuracy += 1
-        if best_accuracy < accuracy:
-            best_accuracy = accuracy
+        if best_accuracy < accuracy.accuracy():
+            best_accuracy = accuracy.accuracy()
             torch.save(net.state_dict(), "best_model.pth")
             epochs_since_best_accuracy = 0
         if epochs_since_best_accuracy > EARLY_STOPPING_NUM_OF_EPOCHS:

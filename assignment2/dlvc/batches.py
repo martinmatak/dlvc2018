@@ -19,7 +19,7 @@ class Batch:
         '''
 
         self.data = None
-        self.labels = None
+        self.label = None
         self.idx = None
 
 
@@ -28,7 +28,7 @@ class BatchGenerator:
     Batch generator.
     Returned batches have the following properties:
       data: numpy array holding batch data of shape (s, SHAPE_OF_DATASET_SAMPLES).
-      labels: numpy array holding batch labels of shape (s, SHAPE_OF_DATASET_LABELS).
+      label: numpy array holding batch labels of shape (s, SHAPE_OF_DATASET_LABELS).
       idx: numpy array with shape (s,) encoding the indices of each sample in the original dataset.
     '''
 
@@ -94,15 +94,25 @@ class BatchGenerator:
             sample_data_shape = self.op(self.dataset[0].data).shape
         else:
             sample_data_shape = self.dataset[0].data.shape
+
         data = np.zeros((self.batch_size,) + sample_data_shape, dtype=np.float32)
 
         sample_label_shape = self.dataset[0].label.shape
         labels = np.zeros((self.batch_size,) + sample_label_shape, dtype=np.uint8)
 
         indices = np.zeros(self.batch_size, dtype=np.int32)
-
         for idx in range(0, len(self)):
             sample_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
+
+            # if last batch, reinitialize arrays to fit the batch size
+            if idx == len(self)-1:
+                data = np.zeros((len(sample_indices),) + sample_data_shape, dtype=np.float32)
+
+                sample_label_shape = self.dataset[0].label.shape
+                labels = np.zeros((len(sample_indices),) + sample_label_shape, dtype=np.uint8)
+
+                indices = np.zeros(len(sample_indices), dtype=np.int32)
+
             for i, sample_id in enumerate(sample_indices):
                 sample = self.dataset[sample_id]
                 if self.op:
@@ -113,6 +123,6 @@ class BatchGenerator:
                 indices[i] = sample.idx
             batch = Batch()
             batch.data = data
-            batch.labels = labels
+            batch.label = labels
             batch.idx = indices
             yield batch

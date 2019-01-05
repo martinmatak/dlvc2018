@@ -1,5 +1,3 @@
-from .model import Model
-from .batches import BatchGenerator
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
@@ -62,8 +60,12 @@ class Accuracy(PerformanceMeasure):
         '''
         Ctor.
         '''
-        self.value = None
-        self.reset()
+        self.value = 0.0
+        self.prediction = None
+        self.target = None
+
+        # recalculate the whole accuracy only when a new batch is inserted since the last request
+        self.state_updated = False
 
     def reset(self):
         '''
@@ -71,6 +73,9 @@ class Accuracy(PerformanceMeasure):
         '''
 
         self.value = 0.0
+        self.prediction = None
+        self.target = None
+        self.state_updated = False
 
     def update(self, prediction: np.ndarray, target: np.ndarray):
         '''
@@ -93,12 +98,17 @@ class Accuracy(PerformanceMeasure):
         if len(target) != len(prediction):
             raise ValueError("Target and prediction arrays don't have the same length.")
 
-        correct = 0
-        for index, trueLabel in enumerate(target):
-            predicted_label = np.argmax(prediction[index])
-            if predicted_label == trueLabel:
-                correct += 1
-        self.value = correct * 1.0 / len(target)
+        if self.prediction is None:
+            self.prediction = prediction.copy()
+        else:
+            np.append(self.prediction, prediction.copy())
+
+        if self.target is None:
+            self.target = target.copy()
+        else:
+            np.append(self.target, target.copy())
+
+        self.state_updated = True
 
     def __str__(self):
         '''
@@ -133,5 +143,14 @@ class Accuracy(PerformanceMeasure):
         Compute and return the accuracy as a float between 0 and 1.
         Returns 0 if no data is available (after resets).
         '''
+
+        if self.state_updated:
+            correct = 0
+            for index, trueLabel in enumerate(self.target):
+                predicted_label = np.argmax(self.prediction[index])
+                if predicted_label == trueLabel:
+                    correct += 1
+            self.value = correct * 1.0 / len(self.target)
+            self.state_updated = False
 
         return float(self.value)

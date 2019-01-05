@@ -87,11 +87,12 @@ class CatDogNet(nn.Module):
 net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
+accuracy = Accuracy()
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
     for batch in batchGenerator_training:
-        loss = clf.train(batch.data, batch.labels)
+        loss = clf.train(batch.data, batch.label)
         loss_list.append(loss)
 
     loss = np.array(loss_list)
@@ -99,9 +100,9 @@ for epoch in range(0, EPOCHS):
     loss_deviation = np.std(loss)
     print("Train loss: ", loss_mean, "-+", loss_deviation)
 
-    accuracy = Accuracy()
+    accuracy.reset()
     for batch in batchGenerator_validation:
         predictions = clf.predict(batch.data)
-        accuracy.update(predictions.cpu().detach().numpy(), batch.labels)
+        accuracy.update(predictions.cpu().detach().numpy(), batch.label)
 
     print("Val " + str(accuracy))

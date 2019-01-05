@@ -115,6 +115,12 @@ batch_generator = BatchGenerator(dataset_training, 500, False)
 num_of_batches = len(batch_generator)
 expected = 16
 assert num_of_batches == expected, "Number of batches is " + str(num_of_batches) + ", expected: " + str(expected)
+# and the last batch has size 459
+batch_idx = 0
+for batch in batch_generator:
+    batch_idx += 1
+    if batch_idx == 16:
+        assert len(batch.label) == 459, "Num of samples in the last batch is: " + str(len(batch.label)) + ", expected: 459"
 
 # The data and label shapes are (500, 3072) and (500,), respectively, unless for the last batch
 batch_generator = BatchGenerator(dataset_training, 500, shuffle=False, op=vectorize())
@@ -125,7 +131,7 @@ for batch in batch_generator:
     if batch_idx == last_batch_idx:
         continue
     assert batch.data.shape == (500, 3072), "Batch data shape: " + str(batch.data.shape) + ", expected: (500, 3072)."
-    assert batch.labels.shape == (500,), "Batch labels shape: " + str(batch.labels.shape) + ", expected: (500,)."
+    assert batch.label.shape == (500,), "Batch labels shape: " + str(batch.label.shape) + ", expected: (500,)."
     batch_idx += 1
 
 # The data type is always np.float32 and the label type is integral (one of the np.int and np.uint variants)
@@ -133,7 +139,7 @@ for batch in batch_generator:
 batch_generator = BatchGenerator(dataset_training, 500, False, op=chain([vectorize(), type_cast(dtype=np.float32)]))
 for batch in batch_generator:
     assert batch.data.dtype == np.float32, "Batch data type: " + str(batch.data.dtype) + ", expected: np.float32."
-    assert batch.labels.dtype == np.uint8, "Batch labels type: " + str(batch.labels.dtype) + ", expected: np.uint8."
+    assert batch.label.dtype == np.uint8, "Batch labels type: " + str(batch.label.dtype) + ", expected: np.uint8."
 
 # The first sample of the first training batch returned without shuffling
 # has label 0 ...
@@ -142,7 +148,7 @@ first_sample_label_unshuffled = None
 first_sample_data_unshuffled = None
 expected_label = 0
 for batch in batch_generator:
-    for label in batch.labels:
+    for label in batch.label:
         first_sample_label_unshuffled = label
         break
     for data in batch.data:
