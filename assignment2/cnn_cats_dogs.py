@@ -6,10 +6,11 @@ from dlvc.models.pytorch import CnnClassifier
 from dlvc.test import Accuracy
 import torch.nn as nn
 import numpy as np
+import time
 
-# dir = '/home/e1635889/datasets/cifar-10-batches-py/'
+dir = '/home/e1227507/datasets/cifar-10-batches-py/'
 # dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
-dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
+# dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
@@ -17,7 +18,7 @@ NUM_CHANNELS = 3
 
 BATCH_SIZE = 128
 NUM_CLASSES = 2
-EPOCHS = 1
+EPOCHS = 500
 lr = 0.001
 # weight decay 0 in this configuration, in part 3 this is changed
 wd = 0.0
@@ -67,11 +68,22 @@ class CatDogNet(nn.Module):
         self.avg_pool_layer3 = nn.AvgPool2d(kernel_size=2, stride=2)
 
         # Add all the units into the Sequential layer in exact order
-        self.cnn_net = nn.Sequential(self.conv1_layer1, self.relu1_layer1, self.conv2_layer1, self.relu2_layer1,
+        self.cnn_net = nn.Sequential(self.conv1_layer1,
+                                     self.relu1_layer1,
+                                     self.conv2_layer1,
+                                     self.relu2_layer1,
                                      self.max_pool_layer1,
-                                     self.conv1_layer2, self.relu1_layer2, self.conv2_layer2, self.relu2_layer2,
+
+                                     self.conv1_layer2,
+                                     self.relu1_layer2,
+                                     self.conv2_layer2,
+                                     self.relu2_layer2,
                                      self.max_pool_layer2,
-                                     self.conv1_layer3, self.relu1_layer3, self.conv2_layer3, self.relu2_layer3,
+
+                                     self.conv1_layer3,
+                                     self.relu1_layer3,
+                                     self.conv2_layer3,
+                                     self.relu2_layer3,
                                      self.avg_pool_layer3)
 
         self.fc = nn.Linear(in_features=2048, out_features=NUM_CLASSES)
@@ -88,6 +100,7 @@ net = CatDogNet()
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
 accuracy = Accuracy()
+since = time.time()
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
@@ -106,3 +119,5 @@ for epoch in range(0, EPOCHS):
         accuracy.update(predictions.cpu().detach().numpy(), batch.label)
 
     print("Val " + str(accuracy))
+time_elapsed = time.time() - since
+print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
