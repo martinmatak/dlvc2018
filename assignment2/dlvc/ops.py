@@ -128,6 +128,7 @@ def vflip() -> Op:
             sample = np.fliplr(sample)
 
         return sample
+
     return op
 
 
@@ -166,9 +167,25 @@ def rotate90(k: int) -> Op:
     If k is odd number, height and width of an image will be changed (swapped).
     :param k: how many times image will be rotated for 90 degrees.
     '''
+
     def op(sample: np.ndarray) -> np.ndarray:
         if random.random() < 0.5:
             sample = np.rot90(sample, k)
         return sample
+
     return op
 
+
+def resize(size: int, pad_mode: str) -> Op:
+    '''
+    Resize the image into given size with padding
+    '''
+
+    def op(sample: np.ndarray) -> np.ndarray:
+        # sample = cv2.resize(sample, dsize=(size, size), interpolation=cv2.INTER_CUBIC)
+        pad = int((size - 32) / 2)
+        npad = ((pad, pad), (pad, pad), (0, 0))
+        sample = np.pad(sample, npad, pad_mode)
+        return sample
+
+    return op
