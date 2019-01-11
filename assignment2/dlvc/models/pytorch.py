@@ -52,11 +52,11 @@ class CnnClassifier(Model):
             raise TypeError("Weight decay has an inappropriate type.")
         else:
             self.wd = wd
-        self.warning_is_showed_flag = False
+        self.warning_is_showed_flag_training = False
+        self.warning_is_showed_flag_predict = False
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=self.wd)
 
         self.loss_fn = nn.CrossEntropyLoss()
-
         # inside the train() and predict() functions you will need to know whether the network itself
         # runs on the cpu or on a gpu, and in the latter case transfer input/output tensors via cuda()
         # and cpu(). do determine this, check the type of (one of the) parameters, which can be obtained
@@ -110,9 +110,9 @@ class CnnClassifier(Model):
 
         # Check if network is running on GPU or CPU
         t = next(iter(self.model.parameters()))
-        if not t.is_cuda and self.warning_is_showed_flag is False:
+        if not t.is_cuda and self.warning_is_showed_flag_training is False:
             print("WARNING: Program should use GPU for training. Currently running on CPU")
-            self.warning_is_showed_flag = True
+            self.warning_is_showed_flag_training = True
 
         self.model.train()
         # Clear all accumulated gradients
@@ -145,6 +145,12 @@ class CnnClassifier(Model):
             raise ValueError("Prediction must have shape (m,C,H,W)")
         else:
             data_tensor = torch.Tensor(data).to(self.device)
+
+        # Check if network is running on GPU or CPU
+        t = next(iter(self.model.parameters()))
+        if not t.is_cuda and self.warning_is_showed_flag_predict is False:
+            print("WARNING: Program should use GPU for predicting. Currently running on CPU")
+            self.warning_is_showed_flag_predict = True
 
         self.model.eval()
 
