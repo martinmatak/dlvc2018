@@ -8,6 +8,7 @@ from dlvc.test import Accuracy
 import torch
 import torch.nn as nn
 import numpy as np
+import time
 
 dir = '/home/e1635889/datasets/cifar-10-batches-py/'
 #dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
@@ -113,6 +114,7 @@ loss_list = []
 best_accuracy = 0.0
 accuracy = Accuracy()
 epochs_since_best_accuracy = 0
+since = time.time()
 for epoch in range(0, EPOCHS):
     print("Epoche: ", epoch + 1)
 
@@ -144,3 +146,5 @@ for epoch in range(0, EPOCHS):
                   " epochs passed without improvement in validation accuracy. Stopping the training now." +
 		  "best validation accuracy: " + str(best_accuracy))
             break
+time_elapsed = time.time() - since
+print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
