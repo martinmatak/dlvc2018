@@ -132,17 +132,6 @@ def set_parameter(model, freeze_parameters):
             param.requires_grad = False
 
 
-def imgshow(inp, title=None):
-    inp = np.asarray(inp).transpose(1, 2, 0)
-    print(title)
-    mean = np.array([0.5, 0.5, 0.5])
-    std = np.array([0.5, 0.5, 0.5])
-    inp = std * inp + mean
-    cv2.imshow(str(title), inp)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
 if USE_TRANSFER_LEARNING:
     # there are two networks to use in transfer learning "resnet" and "alexnet"
     net = initialize_transfer_learning_model("resnet", NUM_CLASSES, FREEZE_CNN_PARAMETERS)
