@@ -9,7 +9,7 @@ import numpy as np
 import time
 
 dir = '/home/e1227507/datasets/cifar-10-batches-py/'
-dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
+# dir = '/home/khaftool/PycharmProjects/Thesis/data/cifar-10-batches-py/'
 # dir = '/Users/mmatak/dev/college/DLVC/cifar-10/cifar-10-batches-py/'
 
 IMAGE_HEIGHT = 32
@@ -25,7 +25,6 @@ wd = 0.0
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
-pets_test = PetsDataset(dir, Subset.TEST)
 
 
 batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, shuffle=True,
