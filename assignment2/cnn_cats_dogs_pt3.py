@@ -21,8 +21,8 @@ NUM_CHANNELS = 3
 BATCH_SIZE = 128
 NUM_CLASSES = 2
 EPOCHS = 1000
-lr = 0.01
-wd = 0.0000001
+lr = 0.001
+wd = 0.00000001
 
 EARLY_STOPPING = True
 EARLY_STOPPING_NUM_OF_EPOCHS = 100
@@ -35,7 +35,7 @@ batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, shuffle=True
                                          op=chain([type_cast(dtype=np.float32),
                                                    add(-127.5),
                                                    mul(1 / 127.5),
-                                                   rcrop(25, 2, 'median'),hflip(),vflip(),
+                                                   rcrop(25, 2, 'median'), hflip(), vflip(),
                                                    hwc2chw()]))
 batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, shuffle=False,
                                          op=chain([type_cast(dtype=np.float32),

@@ -22,7 +22,7 @@ BATCH_SIZE = 128
 NUM_CLASSES = 2
 EPOCHS = 1000
 lr = 0.001
-wd = 0.0000001
+wd = 0.00000001
 
 EARLY_STOPPING = True
 EARLY_STOPPING_NUM_OF_EPOCHS = 100
@@ -114,7 +114,8 @@ def initialize_transfer_learning_model(model_name, num_classes, freeze_cnn_param
     model_ft = None
     input_size = 0
 
-    if model_name == "resnet":  # Resnet18
+    if model_name == "resnet":
+        # Resnet18
         model_ft = models.resnet18(pretrained=True)
         set_parameter(model_ft, freeze_cnn_parameters)
         num_ftrs = model_ft.fc.in_features
