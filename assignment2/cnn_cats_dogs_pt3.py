@@ -35,7 +35,7 @@ batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, shuffle=True
                                          op=chain([type_cast(dtype=np.float32),
                                                    add(-127.5),
                                                    mul(1 / 127.5),
-                                                   rcrop(25, 2, 'median'), hflip(), vflip(),
+                                                   rcrop(25, 2, 'median'),
                                                    hwc2chw()]))
 batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, shuffle=False,
                                          op=chain([type_cast(dtype=np.float32),
