@@ -24,68 +24,77 @@ EPOCHS = 1000
 lr = 0.001
 wd = 0.0000001
 
-EARLY_STOPPING = False
+EARLY_STOPPING = True
 EARLY_STOPPING_NUM_OF_EPOCHS = 100
-USE_DROPOUT = False
+USE_DROPOUT = True
 
 USE_TRANSFER_LEARNING = True
 FREEZE_CNN_PARAMETERS = True
 
 pets_training = PetsDataset(dir, Subset.TRAINING)
 pets_validation = PetsDataset(dir, Subset.VALIDATION)
-pets_test = PetsDataset(dir, Subset.TEST)
 
 
 class CatDogNet(nn.Module):
     def __init__(self):
         super(CatDogNet, self).__init__()
-        # First Layer 2xConv and Max pool; out_Shape = (16x16x32)
+        # First Layer 2xConv and Max pool out_Shape = (16x16x32)
         self.conv1_layer1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.batch_norm1_layer1 = nn.BatchNorm2d(num_features=32)
         self.relu1_layer1 = nn.ReLU()
 
         self.conv2_layer1 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.batch_norm2_layer1 = nn.BatchNorm2d(num_features=32)
         self.relu2_layer1 = nn.ReLU()
 
         self.max_pool_layer1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # second Layer 2xConv and Max pool ;out_shape = (8x8x64)
+        # second Layer 2xConv and Max pool out_shape = (8x8x64)
         self.conv1_layer2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.batch_norm1_layer2 = nn.BatchNorm2d(num_features=64)
         self.relu1_layer2 = nn.ReLU()
 
         self.conv2_layer2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
+        self.batch_norm2_layer2 = nn.BatchNorm2d(num_features=64)
         self.relu2_layer2 = nn.ReLU()
 
         self.max_pool_layer2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # Third Layer 2xConv and average pool; out_shape = (4x4x128)
+        # Third Layer 2xConv and average pool out_shape = (4x4x128)
         self.conv1_layer3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
+        self.batch_norm1_layer3 = nn.BatchNorm2d(num_features=128)
         self.relu1_layer3 = nn.ReLU()
 
         self.conv2_layer3 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1)
+        self.batch_norm2_layer3 = nn.BatchNorm2d(num_features=128)
         self.relu2_layer3 = nn.ReLU()
 
         self.avg_pool_layer3 = nn.AvgPool2d(kernel_size=2, stride=2)
 
         # Add all the units into the Sequential layer in exact order
-        self.cnn_net = nn.Sequential(
-            self.conv1_layer1,
-            self.relu1_layer1,
-            self.conv2_layer1,
-            self.relu2_layer1,
-            self.max_pool_layer1,
+        self.cnn_net = nn.Sequential(self.conv1_layer1,
+                                     self.batch_norm1_layer1,
+                                     self.relu1_layer1,
+                                     self.conv2_layer1,
+                                     self.batch_norm2_layer1,
+                                     self.relu2_layer1,
+                                     self.max_pool_layer1,
 
-            self.conv1_layer2,
-            self.relu1_layer2,
-            self.conv2_layer2,
-            self.relu2_layer2,
-            self.max_pool_layer2,
+                                     self.conv1_layer2,
+                                     self.batch_norm1_layer2,
+                                     self.relu1_layer2,
+                                     self.conv2_layer2,
+                                     self.batch_norm2_layer2,
+                                     self.relu2_layer2,
+                                     self.max_pool_layer2,
 
-            self.conv1_layer3,
-            self.relu1_layer3,
-            self.conv2_layer3,
-            self.relu2_layer3,
-            self.avg_pool_layer3
-        )
+                                     self.conv1_layer3,
+                                     self.batch_norm1_layer3,
+                                     self.relu1_layer3,
+                                     self.conv2_layer3,
+                                     self.batch_norm2_layer3,
+                                     self.relu2_layer3,
+                                     self.avg_pool_layer3)
 
         self.dropout_layer = nn.Dropout(0.5)
 
@@ -147,9 +156,8 @@ else:
     net = CatDogNet()
     op_chain = chain([type_cast(dtype=np.float32), add(-127.5), mul(1 / 127.5), rcrop(25, 2, 'median'), hwc2chw()])
 
-batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, False, op=op_chain)
-batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, False, op=op_chain)
-batchGenerator_test = BatchGenerator(pets_test, BATCH_SIZE, False, op=op_chain)
+batchGenerator_training = BatchGenerator(pets_training, BATCH_SIZE, shuffle=True, op=op_chain)
+batchGenerator_validation = BatchGenerator(pets_validation, BATCH_SIZE, shuffle=False, op=op_chain)
 
 clf = CnnClassifier(net, (BATCH_SIZE, NUM_CHANNELS, IMAGE_HEIGHT, IMAGE_WIDTH), NUM_CLASSES, lr, wd)
 loss_list = []
